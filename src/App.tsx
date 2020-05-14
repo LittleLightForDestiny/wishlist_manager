@@ -1,28 +1,30 @@
+import { createMuiTheme, ThemeProvider, colors } from '@material-ui/core';
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import { SelectWeapon } from './views/select_weapon/select_weapon.view';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { HashRouter as Router, Route } from 'react-router-dom';
+import { Welcome } from './views/welcome/welcome.view';
+import WishlistsIndex from './views/wishlist';
+
+import 'simplebar/dist/simplebar.min.css';
+import './App.scss';
+
+
 
 const theme = createMuiTheme({
   palette: {
-    primary: {
-      main: "#33425e"
-    },
-    secondary: {
-      main: "#33425e"
-    },
+    primary: colors.blueGrey,
+    secondary: colors.lightBlue,
     type: "dark",
   },
 });
 
 function App() {
   return (
-    <div>
-      <ThemeProvider theme={theme}>
-        <SelectWeapon></SelectWeapon>
-      </ThemeProvider>
-    </div>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Route exact path="/" component={Welcome}></Route>
+        <Route path="/wishlist" component={WishlistsIndex}></Route>
+      </Router>
+    </ThemeProvider>
   );
 }
 
