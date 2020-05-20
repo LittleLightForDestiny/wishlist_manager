@@ -18,8 +18,8 @@ export type OnWishlistImport = (data:WishlistData) => void;
 export const ImportWishlistForm = (props: {
     onImport: OnWishlistImport
 }) => {
-    const [wishlistType, setWishlistType] = useState<WishlistType>();
-    const [mediaType, setMediaType] = useState<MediaType>();
+    const [wishlistType, setWishlistType] = useState<WishlistType|null>(null);
+    const [mediaType, setMediaType] = useState<MediaType|null>(null);
     const [wishlistURL, setWishlistURL] = useState<string>("");
     const [wishlistFile, setWishlistFile] = useState<File>();
 
@@ -105,10 +105,10 @@ export const ImportWishlistForm = (props: {
                 </Box>
                 <Card variant="outlined">
                     <RadioGroup aria-label="media type" name="media type"
-                        value={wishlistType}
+                        value={mediaType}
                         style={{ display: "flex", flexDirection: "row", padding: "8px 16px" }}
                         onChange={(_, value) => setMediaType(value as any)}>
-                        <FormControlLabel disabled value={MediaType.Upload} control={<Radio />} label="Upload" />
+                        <FormControlLabel value={MediaType.Upload} control={<Radio />} label="Upload" />
                         <FormControlLabel value={MediaType.Link} control={<Radio />} label="Link" />
                     </RadioGroup>
                 </Card>

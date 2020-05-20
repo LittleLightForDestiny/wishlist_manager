@@ -23,6 +23,10 @@ const useStyles = makeStyles((theme: Theme) =>
             flexDirection: "column",
             width: 48,
         },
+        tagCheckBox:{
+            width:"50%",
+            marginRight:0,
+        },
         perk: {
             width: 48,
             height: 48
@@ -30,15 +34,19 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistBuild, def: DestinyInventoryItemDefinition }) => {
-    const classes = useStyles();
-    const blankBuild:WishlistBuild = {
-        wishlistId:props.wishlistId,
-        itemHash:props.def.hash,
+function createBlankBuild(wishlistId:number, itemHash:number):WishlistBuild{
+    return {
+        wishlistId:wishlistId,
+        itemHash:itemHash,
         tags:[],
         name:"",
         description:""
     };
+}
+
+export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistBuild, def: DestinyInventoryItemDefinition }) => {
+    const classes = useStyles();
+    const blankBuild:WishlistBuild = createBlankBuild(props.wishlistId, props.def.hash);
 
     const [curatedPerks, setCuratedPerks] = useState<number[][]>([]);
     const [randomPerks, setRandomPerks] = useState<number[][]>([]);
@@ -149,10 +157,11 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
         if(props.build){
             setBuild({...props.build});
         }else{
-            setBuild({...blankBuild});
+            let blank = createBlankBuild(props.wishlistId, props.def.hash);
+            setBuild({...blank});
         }
         load();
-    }, [props.def.sockets, props.build]);
+    }, [props.def.sockets, props.build, props.wishlistId, props.def.hash]);
 
 
     if (!loaded) {
@@ -188,21 +197,22 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
         <Card style={{ height: "100%" }}>
             <Box display="flex" flexDirection="column" p={1} height="100%">
                 <Grid container spacing={1}>
-                    <Grid item md={9}>
+                    <Grid item md={8}>
                         <form noValidate autoComplete="off" style={{ width: "100%" }}>
                             <Box pb={1}>
                                 <TextField id="name" label="Name" variant="outlined" fullWidth onChange={onChange} value={build.name} />
                             </Box>
                             <Box pb={1}>
-                                <TextField id="description" label="Description" variant="outlined" fullWidth multiline rows={3} value={build.description} onChange={onChange} />
+                                <TextField id="description" label="Description" variant="outlined" fullWidth multiline rows={4} value={build.description} onChange={onChange} />
                             </Box>
                         </form>
                     </Grid>
-                    <Grid item md={3}>
+                    <Grid item md={4}>
                         <SectionHeader>Tag</SectionHeader>
                         <Card variant="outlined">
-                            <Box p={1} py={0}>
+                            <Box p={1} py={0} display="flex" flexWrap="wrap">
                                 <FormControlLabel
+                                    className={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.GodPvE)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.GodPvE, value)}
@@ -210,6 +220,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     label="GodPvE"
                                 />
                                 <FormControlLabel
+                                    className={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.PvE)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.PvE, value)}
@@ -217,6 +228,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     label="PvE"
                                 />
                                 <FormControlLabel
+                                    className={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.GodPvP)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.GodPvP, value)}
@@ -224,11 +236,28 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     label="GodPvP"
                                 />
                                 <FormControlLabel
+                                    className={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.PvP)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.PvP, value)}
                                         name="PvP" />}
                                     label="PvP"
+                                />
+                                <FormControlLabel
+                                    className={classes.tagCheckBox}
+                                    control={<Checkbox
+                                        checked={containsTag(WishlistTag.MnK)}
+                                        onChange={(_, value) => handleTagChange(WishlistTag.MnK, value)}
+                                        name="MnK" />}
+                                    label="Mouse"
+                                />
+                                <FormControlLabel
+                                    className={classes.tagCheckBox}
+                                    control={<Checkbox
+                                        checked={containsTag(WishlistTag.Controller)}
+                                        onChange={(_, value) => handleTagChange(WishlistTag.Controller, value)}
+                                        name="Controller" />}
+                                    label="Controller"
                                 />
                             </Box>
                         </Card>

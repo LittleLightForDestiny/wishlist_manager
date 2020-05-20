@@ -3,7 +3,7 @@ import Axios from "axios";
 import React, { useEffect } from "react";
 import { MediaType, WishlistData, WishlistType } from "./import_form";
 import {Wishlist, WishlistBuild} from '../../../interfaces/wishlist.interface';
-import { importLittleLight } from "../../../utils/importers/littlelight.importer";
+import { importLittleLight } from "../../../utils/converters/littlelight.converter";
 
 export type OnImportFinish = (data:{
     wishlist:Wishlist,
@@ -14,7 +14,7 @@ export const WishlistImporter = (props: {
     data?:WishlistData,
      onFinish:OnImportFinish
 }) => {
-    const importSource = ()=>{
+    const getImportSource = ()=>{
         if(props.data?.media === MediaType.Upload){
             let file:File = props.data.data as File;
             return file.name;
@@ -26,12 +26,28 @@ export const WishlistImporter = (props: {
         }
     }
 
+    let importSource = getImportSource();
+    
     useEffect(()=>{
         async function load():Promise<any>{
             switch(props.data?.media){
                 case MediaType.Link:
                     let res = await Axios.get(props.data.data as string);
                     return res.data;
+
+                case MediaType.Upload:
+                    let file:File = props.data.data as File;
+                    let reader:FileReader = new FileReader();
+                    return new Promise((resolve)=>{
+                        reader.addEventListener('load', (event)=>{
+                            try{
+                                let json = JSON.parse(event?.target?.result as string || "");
+                                resolve(json);    
+                            }catch(e){}
+                        });
+                        reader.readAsText(file);
+                    });
+                    
             }
             return null;
         }
@@ -47,16 +63,25 @@ export const WishlistImporter = (props: {
             let content = await load();
             let imported = await importWishlist(content);
             if(imported){
+                if(!imported.wishlist.name){
+                    let filename = importSource;
+                    let names = filename.split('/');
+                    filename = names[names.length - 1];
+                    imported.wishlist.name = filename;
+                }
+                if(!imported.wishlist.description){
+                    imported.wishlist.description = "";
+                }
                 props.onFinish(imported);
             }
         }
 
         loadAndImport();
-    }, [props]);
+    }, [props, importSource]);
     return (
         <Box>
             <Box p={2} display="flex" flexDirection="column" alignItems="center">
-                <Box textAlign="center" overflow="hidden" textOverflow="ellipsis">importing from {importSource()}</Box>
+                <Box textAlign="center" overflow="hidden" textOverflow="ellipsis">importing from {importSource}</Box>
                 <Box p={3}>
                 <CircularProgress></CircularProgress>
                 </Box>

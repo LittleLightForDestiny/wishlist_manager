@@ -6,6 +6,7 @@ import { EditWishlist } from "./edit";
 import { LoadWishlist } from "./load";
 import { NewWishlist } from "./new";
 import { ImportWishlist } from "./import";
+import { ExportWishlistModal } from "./export";
 
 export const WishlistsIndex = () => {
     return (
@@ -15,6 +16,7 @@ export const WishlistsIndex = () => {
             <Route exact path="/wishlist/import" component={ImportWishlist}></Route>
             <Route path="/wishlist/e/:wishlistId" component={EditWishlist}></Route>
             <Route path="/wishlist/e/:wishlistId" component={WishlistItemIndex}></Route>
+            <Route exact path="/wishlist/e/:wishlistId/export" component={ExportWishlistModal}></Route>
         </HashRouter>
     );
 };

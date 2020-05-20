@@ -1,7 +1,7 @@
 import { Box, Button, CircularProgress } from "@material-ui/core";
 import React, { useState } from "react";
-import WishlistMetadataForm from "../metadataForm";
 import Wishlist, { WishlistBuild } from "../../../interfaces/wishlist.interface";
+import WishlistMetadataForm from "../metadataForm";
 
 export const ImporterMetadataForm = (props: {
     data?:{
@@ -21,7 +21,7 @@ export const ImporterMetadataForm = (props: {
         <Box>
             <Box p={2}>
             <Box>
-                <WishlistMetadataForm wishlist={props.data?.wishlist}></WishlistMetadataForm>
+                <WishlistMetadataForm wishlist={props.data?.wishlist} onChange={(w)=>{props.data!.wishlist = w;}}></WishlistMetadataForm>
             </Box>
             <Box p={1}>
                 {props.data?.builds.length} builds found.

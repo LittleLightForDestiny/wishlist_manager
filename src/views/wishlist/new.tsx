@@ -15,7 +15,7 @@ export const NewWishlist = (props: { history: History }) => {
     return (
         <Container maxWidth="sm">
             <Box height="100vh" justifyContent="center" display="flex" flexDirection="column">
-                <WishlistMetadataForm wishlist={wishlist}></WishlistMetadataForm>
+                <WishlistMetadataForm wishlist={wishlist} onChange={(w)=>{wishlist = w}}></WishlistMetadataForm>
                 <Box display="flex" justifyContent="flex-end" width="100%">
                     <Button variant="contained" color="secondary" onClick={createClick}>Create</Button>
                 </Box>

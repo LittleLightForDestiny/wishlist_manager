@@ -59,7 +59,7 @@ export const EditItem = ({ match, history }: RouteChildrenProps<{ itemHash: stri
         return <Box></Box>
     }
 
-    return (<DefaultModal display="flex" flexDirection="column">
+    return (<DefaultModal display="flex" flexDirection="column" width="calc(100vw - 80px)" height="calc(100vh - 80px)">
         <CssBaseline />
         <AppBar position="static">
             <Toolbar className={classes.toolbar}>

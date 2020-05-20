@@ -1,4 +1,6 @@
-import { AppBar, Box, Container, createStyles, makeStyles, Paper, Theme, Toolbar } from "@material-ui/core";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { AppBar, Box, Container, createStyles, IconButton, makeStyles, Paper, Theme, Toolbar, Typography } from "@material-ui/core";
 import React, { useState } from "react";
 import { RouteChildrenProps } from "react-router-dom";
 import Wishlist, { WishlistBuild } from "../../interfaces/wishlist.interface";
@@ -6,8 +8,7 @@ import { saveBuild } from "../../services/wishlistBuild.service";
 import { createWishlist } from "../../services/wishlists.service";
 import { OnImportFinish, WishlistImporter } from "./import/importer";
 import { ImporterMetadataForm } from "./import/importer_metadata_form";
-import { ImportWishlistForm, MediaType, OnWishlistImport, WishlistData as WishlistFormData, WishlistType } from "./import/import_form";
-
+import { ImportWishlistForm, OnWishlistImport, WishlistData as WishlistFormData } from "./import/import_form";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -59,15 +60,20 @@ export const ImportWishlist = ({ history }: RouteChildrenProps) => {
         setPhase(Phase.metadataForm);
     };
 
-    const onSave = async ()=>{
+    const onSave = async () => {
         let w = await createWishlist(importedData?.wishlist!);
-        for(let i in importedData?.builds){
+        for (let i in importedData?.builds) {
             let build = importedData?.builds[parseInt(i)];
             await saveBuild({
-                wishlistId:w.id,
-                ...build});
+                wishlistId: w.id,
+                ...build
+            });
         }
         history.push(`/wishlist/e/${w.id}`);
+    }
+    
+    const goToMain = () => {
+        history.push("/");
     }
 
     return (
@@ -75,7 +81,10 @@ export const ImportWishlist = ({ history }: RouteChildrenProps) => {
             <Box className={classes.root}>
                 <AppBar position="static">
                     <Toolbar>
-                        Import Wishlist
+                        <IconButton edge="start" color="inherit" aria-label="menu" onClick={goToMain}>
+                            <FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon>
+                        </IconButton>
+                        <Typography>Import Wishlist</Typography>
                     </Toolbar>
                 </AppBar>
                 <Paper>

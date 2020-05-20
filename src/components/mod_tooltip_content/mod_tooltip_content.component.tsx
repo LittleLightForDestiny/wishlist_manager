@@ -34,7 +34,7 @@ export const ModTooltipContent = (props: {
             setDef(d);
         }
         load();
-    }, [])
+    }, [props.hash])
     
 
     if (!def) {    

@@ -5,7 +5,7 @@ export enum WishlistTag{
     PvP="PvP",
     Trash="Trash",
     Curated="Curated",
-    MNK="MNK",
+    MnK="MNK",
     Controller="Controller",
     None="None"
 }

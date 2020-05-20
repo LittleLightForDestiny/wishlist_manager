@@ -125,6 +125,8 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                     {wishlist?.name}
                 </Typography>
                 <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/item/add`}>Add Item</Button>
+                <Box p={1}></Box>
+                <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>Export Wishlist</Button>
             </Toolbar>
         </AppBar>
         {useMemo(()=><Box flexGrow="1" >

@@ -171,7 +171,7 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
         load();
     }, []);
 
-    return (<DefaultModal display="flex" flexDirection="row">
+    return (<DefaultModal display="flex" flexDirection="row" width="calc(100vw - 80px)" height="calc(100vh - 80px)">
             <CssBaseline />
             {useMemo(()=><Paper square elevation={5} className={classes.drawer}>
                 <AmmoTypeSelector presentationNodes={nodes} enabledHashes={enabledNodes} filterToggle={setPresentationNodeState}></AmmoTypeSelector>
