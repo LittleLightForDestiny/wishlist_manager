@@ -61,10 +61,8 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
     const [randomPerks, setRandomPerks] = useState<number[][]>([]);
     const [selectedPerks, setSelectedPerks] = useState<number[][]>([]);
     const [loaded, setLoaded] = useState<boolean>(false);
-
-    const [build, setBuild] = useState<WishlistBuild>(props.build || {
-        ...blankBuild
-    });
+    let initialBuild = props.build ? {...props.build} : {...blankBuild};
+    const [build, setBuild] = useState<WishlistBuild>(initialBuild);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
@@ -158,16 +156,41 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
             setCuratedPerks(curatedPerks);
             setRandomPerks(randomPerks);
 
-            setSelectedPerks(randomPerks.map((p, index) => {
-                if(props.build?.plugs && props.build.plugs[index]){
-                    return props.build.plugs[index];
+            let buildPlugs:number[][]|null = props.build?.plugs ? [...props.build.plugs] : null;
+            setSelectedPerks(randomPerks.map((random, index) => {
+                if(!buildPlugs) return [];
+                let curated = curatedPerks[index];
+                if(buildPlugs[index]){
+                    let containsPlugs = buildPlugs[index].some((p)=>{
+                        return random.indexOf(p) > -1 || curated.indexOf(p) > -1;
+                    });
+                    if(containsPlugs){
+                        let result = buildPlugs[index];
+                        buildPlugs[index] = [];
+                        return result;
+                    }
+                }
+                let sortedPlugs = [...buildPlugs].sort((a, b)=>{
+                    let countA = a.filter((p)=>random.indexOf(p) > -1 || curated.indexOf(p) > -1 ).length;
+                    let countB = b.filter((p)=>random.indexOf(p) > -1 || curated.indexOf(p) > -1).length;
+                    return countB - countA;
+                });
+
+                if(sortedPlugs[0] && sortedPlugs[0].length > 0){
+                    let originalIndex = buildPlugs.indexOf(sortedPlugs[0]);
+                    buildPlugs[originalIndex] = [];
+                    return sortedPlugs[0];
                 }
                 return [];
             }));
             setLoaded(true);
         }
         if(props.build){
-            setBuild({...props.build});
+            let blank = createBlankBuild(props.wishlistId, props.def.hash);
+            let build = {...blank, ...props.build};
+            if(!build.name) build.name = "";
+            if(!build.description) build.description = "";
+            setBuild({...build});
         }else{
             let blank = createBlankBuild(props.wishlistId, props.def.hash);
             setBuild({...blank});
@@ -286,9 +309,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     {selectedPerks.map((perks, index) =>
                                         <Box key={index} className={classes.perkColumn}>
                                             {perks.map((p) =>
-                                                <Box key={p} onClick={(ev) => removePerk(p, index)}>
-                                                    <InventoryItemImage className={classes.perk} hash={p}></InventoryItemImage>
-                                                </Box>)}
+                                                 buildPerkIcon(p, ()=>addPerk(p, index)))}
                                         </Box>
                                     )}
                                 </Box>

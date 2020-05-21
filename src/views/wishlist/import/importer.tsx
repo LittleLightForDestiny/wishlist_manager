@@ -25,6 +25,7 @@ export const WishlistImporter = (props: {
             return url.substring(0, firstslashindex + 1) + "..." + url.substring(lastslashindex);
         }
     }
+    
 
     let importSource = getImportSource();
     

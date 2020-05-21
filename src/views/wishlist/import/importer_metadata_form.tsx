@@ -1,5 +1,5 @@
-import { Box, Button, CircularProgress } from "@material-ui/core";
-import React, { useState } from "react";
+import { Box, Button } from "@material-ui/core";
+import React from "react";
 import Wishlist, { WishlistBuild } from "../../../interfaces/wishlist.interface";
 import WishlistMetadataForm from "../metadataForm";
 
@@ -10,13 +10,6 @@ export const ImporterMetadataForm = (props: {
     },
     onSave: ()=>void
 }) => {
-    const [importing, setImporting] = useState<Boolean>(false);
-    if(importing){
-        return <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={200} p={4}>
-            <CircularProgress></CircularProgress>
-            <Box pt={2}>Working...</Box>
-        </Box>
-    }
     return (
         <Box>
             <Box p={2}>
@@ -31,7 +24,6 @@ export const ImporterMetadataForm = (props: {
                 variant="contained" 
                 color="primary" 
                 onClick={()=>{
-                    setImporting(true);
                     props.onSave();
                 }}
                 component="span" >

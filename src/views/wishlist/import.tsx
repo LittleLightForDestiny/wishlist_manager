@@ -1,6 +1,6 @@
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AppBar, Box, Container, createStyles, IconButton, makeStyles, Paper, Theme, Toolbar, Typography } from "@material-ui/core";
+import { AppBar, Box, Container, createStyles, IconButton, makeStyles, Paper, Theme, Toolbar, Typography, CircularProgress } from "@material-ui/core";
 import React, { useState } from "react";
 import { RouteChildrenProps } from "react-router-dom";
 import Wishlist, { WishlistBuild } from "../../interfaces/wishlist.interface";
@@ -37,13 +37,16 @@ const useStyles = makeStyles((theme: Theme) =>
 enum Phase {
     importForm = "import-form",
     importing = "importing",
-    metadataForm = "metadataForm"
+    metadataForm = "metadataForm",
+    saving="saving"
 }
 
 export const ImportWishlist = ({ history }: RouteChildrenProps) => {
     const classes = useStyles();
     const [phase, setPhase] = useState<Phase>(Phase.importForm);
     const [formData, setFormData] = useState<WishlistFormData>();
+    const [progress, setProgress] = useState(0);
+    const [total, setTotal] = useState(0);
 
     const [importedData, setImportedData] = useState<{
         wishlist: Wishlist,
@@ -60,7 +63,9 @@ export const ImportWishlist = ({ history }: RouteChildrenProps) => {
         setPhase(Phase.metadataForm);
     };
 
-    const onSave = async () => {
+    const onSaveFinish = async () => {
+        setPhase(Phase.saving);
+        setTotal(importedData?.builds?.length || 0);
         let w = await createWishlist(importedData?.wishlist!);
         for (let i in importedData?.builds) {
             let build = importedData?.builds[parseInt(i)];
@@ -68,6 +73,7 @@ export const ImportWishlist = ({ history }: RouteChildrenProps) => {
                 wishlistId: w.id,
                 ...build
             });
+            setProgress(parseInt(i));
         }
         history.push(`/wishlist/e/${w.id}`);
     }
@@ -96,7 +102,13 @@ export const ImportWishlist = ({ history }: RouteChildrenProps) => {
                                 case Phase.importing:
                                     return <WishlistImporter onFinish={importFinish} data={formData}></WishlistImporter>
                                 case Phase.metadataForm:
-                                    return <ImporterMetadataForm data={importedData} onSave={onSave}></ImporterMetadataForm>
+                                    return <ImporterMetadataForm data={importedData} onSave={onSaveFinish}></ImporterMetadataForm>
+                                case Phase.saving:
+                                    return <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={200} p={4}>
+                                        <CircularProgress></CircularProgress>
+                                        <Box pt={2}>Saving...</Box>
+                                        <Box pt={2}>{`${progress}/${total}`}</Box>
+                                    </Box>
                             }
                         }}
                     </Box>

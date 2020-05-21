@@ -1,7 +1,7 @@
-import Wishlist, { WishlistBuild, WishlistTag } from "../../interfaces/wishlist.interface";
+import { WishlistBuild, WishlistTag } from "../../interfaces/wishlist.interface";
+import { loadInventoryItemList } from "../../services/data.service";
 import { getBuilds } from "../../services/wishlistBuild.service";
 import { getWishlist } from "../../services/wishlists.service";
-import { loadInventoryItemList } from "../../services/data.service";
 
 
 const exportTags = (tags: WishlistTag[]): string[] => {
@@ -40,7 +40,9 @@ const getNameLine = async (build:WishlistBuild):Promise<string>=>{
 }
 
 function cartesianProduct<T>(...allEntries: T[][]): T[][] {
-    return allEntries.reduce<T[][]>(
+    return allEntries
+    .filter((e)=>e.length > 0)
+    .reduce<T[][]>(
       (results, entries) =>
         results
           .map(result => entries.map(entry => result.concat([entry])))
@@ -59,6 +61,7 @@ const compileBuildLines = async (build:WishlistBuild):Promise<string>=>{
         lines+=`// tags:${exportTags(build.tags).join(',')}\n`;
     }
     let permutations = cartesianProduct<number>(...build.plugs!);
+    console.log(permutations);
     for(var l in permutations){
         let line = permutations[l];
         lines+=`dimwishlist:item=${build.itemHash}&perks=${line.join(',')}\n`;

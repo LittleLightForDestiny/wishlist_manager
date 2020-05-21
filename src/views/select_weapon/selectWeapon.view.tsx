@@ -172,11 +172,10 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
         }
         load();
     }, []);
-
     return (<DefaultModal display="flex" flexDirection="row" width={isMobile ? '100vw' : "calc(100vw - 80px)"} height={isMobile ? '100vh' : "calc(100vh - 80px)"}>
         <CssBaseline />
         {useMemo(() => {
-            isMobile ? <Box></Box> : <Paper square elevation={5} className={classes.drawer}>
+            return isMobile ? <Box></Box> : (<Paper square elevation={5} className={classes.drawer}>
                 <AmmoTypeSelector presentationNodes={nodes} enabledHashes={enabledNodes} filterToggle={setPresentationNodeState}></AmmoTypeSelector>
                 <Box pt={1}></Box>
                 <ScrollContainer className={classes.weaponTypeList} disableTracksWidthCompensation={true} >
@@ -186,7 +185,7 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
                     <div>Only random rolls</div>
                     <Switch value={onlyRandomRolls} onChange={(_, value) => setOnlyRandomRolls(value)}></Switch>
                 </Box>
-            </Paper>
+            </Paper>)
         }, [enabledNodes, onlyRandomRolls, isMobile])}
         <Box width="100%" display="flex" flexDirection="column">
             <AppBar position="static">

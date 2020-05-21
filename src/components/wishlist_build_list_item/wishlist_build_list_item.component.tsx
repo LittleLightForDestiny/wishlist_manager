@@ -1,8 +1,9 @@
 import { Box, Button, Card, CardActions, colors, createStyles, makeStyles, Theme } from "@material-ui/core";
-import { Edit as EditIcon, Delete as DeleteIcon } from "@material-ui/icons";
 import React from "react";
 import { WishlistBuild } from "../../interfaces/wishlist.interface";
 import { InventoryItemImage } from "../inventory_item_image/inventory_item_image.component";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faCopy, faEdit } from "@fortawesome/free-solid-svg-icons";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -22,11 +23,13 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export const WishlistBuildListItem = (props: { build: WishlistBuild , onEditClick?:()=>void, onDeleteClick?:()=>void}) => {
+export const WishlistBuildListItem = (props: { build: WishlistBuild , selected?:boolean, onEditClick?:()=>void, onCopyClick?:()=>void, onDeleteClick?:()=>void}) => {
     const { build } = props;
     const classes = useStyles();
     return (
-        <Card variant="outlined" key={build.id}>
+        <Card variant="outlined" style={{
+            backgroundColor:props.selected ? colors.blueGrey[800] : "transparent"
+        }} key={build.id}>
             <Box p={1} pb={0.5} display="flex" width="100%" justifyContent="space-between">
                 <Box>
                     <strong>{build.name}</strong>
@@ -60,15 +63,20 @@ export const WishlistBuildListItem = (props: { build: WishlistBuild , onEditClic
             </Box>
             <CardActions style={{ justifyContent: "flex-end" }}>
                 <Button size="small" variant="outlined" onClick={()=>{
+                    if(props.onCopyClick) props.onCopyClick();
+                }} startIcon={<FontAwesomeIcon icon={faCopy} fontSize="5px" />}>
+                    Copy
+                </Button>
+                <Button size="small" variant="outlined" onClick={()=>{
                     if(props.onEditClick) props.onEditClick();
-                }} startIcon={<EditIcon />}>
+                }} startIcon={<FontAwesomeIcon icon={faEdit} />}>
                     Edit
                 </Button>
                 <Button size="small" variant="outlined" 
                 onClick={()=>{
                     if(props.onDeleteClick) props.onDeleteClick();
                 }}
-                startIcon={<DeleteIcon />}>
+                startIcon={<FontAwesomeIcon icon={faTrash} />}>
                     Delete
                 </Button>
             </CardActions>

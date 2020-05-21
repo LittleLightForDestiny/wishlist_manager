@@ -1,4 +1,4 @@
-import { faArrowLeft, faPlusCircle, faFileExport, faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faDownload, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AppBar, Box, Button, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import { countBy, map as _map } from "lodash";
@@ -175,6 +175,6 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                     );
                 }}
             </AutoSizer>
-        </Box>, [items, outerRef, wishlistId])}
+        </Box>, [items, outerRef, wishlistId, isMobile])}
     </Box>
 };

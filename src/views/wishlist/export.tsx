@@ -50,13 +50,14 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
 
     async function exportWishlist() {
         setWorking(true);
-        let wishlist = await getWishlist(wishlistId);
+        let wishlist = await getWishlist(parseInt(wishlistId));
         let filename = "";
         let extension = "";
         let data: string = "";
         switch (wishlistType) {
             case WishlistType.LittleLight:
                 data = await exportLittleLight(parseInt(wishlistId));
+                console.log(wishlist);
                 filename = (wishlist?.name || "wishlist").replace(/.(json|txt)$/, "");
                 extension = 'json';
                 break;

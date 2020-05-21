@@ -13,6 +13,7 @@ import db from '../../services/database.service';
 import { deleteBuild, getBuilds } from "../../services/wishlistBuild.service";
 import { bungieURL } from "../../utils/bungie_url";
 import WishlistBuildForm from "../build/buildForm";
+import {cloneDeep} from "lodash";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -106,6 +107,12 @@ export const EditItem = ({ match, history }: RouteChildrenProps<{ itemHash: stri
                                             return (
                                                 <Box mb={1} key={b.id}>
                                                     <WishlistBuildListItem build={b}
+                                                        selected={b.id === selectedBuild?.id}
+                                                        onCopyClick={() => {
+                                                            let build = cloneDeep(b);
+                                                            delete build.id;
+                                                            setSelectedBuild(build);
+                                                        }}
                                                         onEditClick={() => {
                                                             setSelectedBuild(b);
                                                         }}

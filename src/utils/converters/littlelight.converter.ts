@@ -79,7 +79,7 @@ export const exportLittleLight = async (wishlistId:number):Promise<string> => {
             description:b.description || "",
             hash:b.itemHash!,
             name:b.name || "",
-            plugs:b.plugs || [],
+            plugs:b.plugs?.filter((p)=>p.length) || [],
             tags:exportTags(b.tags || [])
         };
     });
