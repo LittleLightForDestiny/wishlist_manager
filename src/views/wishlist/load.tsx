@@ -1,4 +1,4 @@
-import { Box, Button, Container, Card, CardActionArea, Typography, CardActions, makeStyles, Theme, createStyles, AppBar, Toolbar, Paper, IconButton } from "@material-ui/core";
+import { Box, Button, Container, Card, CardActionArea, Typography, CardActions, makeStyles, Theme, createStyles, AppBar, Toolbar, Paper, IconButton, useTheme, useMediaQuery } from "@material-ui/core";
 
 import React, { useState } from "react";
 import Wishlist from "../../interfaces/wishlist.interface";
@@ -11,28 +11,38 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             display: 'flex',
-            minHeight: '100vh',
             flexDirection: "column",
             justifyContent: "center",
+            marginLeft:theme.spacing(-2),
+            marginRight:theme.spacing(-2),
+            // minHeight: '100vh',
         },
         menuButton: {
             marginRight: theme.spacing(2),
         },
         card: {
             display: 'flex',
+            justifyContent:"space-between",
             marginBottom: theme.spacing(1),
+        },
+        cardActionArea:{
+            flexShrink:1,
+            overflow:"hidden",
+            textOverflow:"ellipsis"
         },
         content: {
             padding: theme.spacing(1),
             paddingBottom: 0,
-            background: theme.palette.background.default
+            background: theme.palette.background.default,
         }
     }),
 );
 
 export const LoadWishlist = ({ history }: RouteChildrenProps) => {
-    const classes = useStyles();
     const [wishlists, setWishlists] = useState<Wishlist[]>();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
+    const classes = useStyles();
     async function load() {
         let w = await wishlistService.getAllWishlists();
         setWishlists(w);
@@ -59,7 +69,7 @@ export const LoadWishlist = ({ history }: RouteChildrenProps) => {
 
     return (
         <Container maxWidth="sm">
-            <Box className={classes.root}>
+            <Box className={classes.root} minHeight={isMobile ? "auto" : "100vh"}>
                 <AppBar position="static">
                     <Toolbar>
                         <IconButton edge="start" color="inherit" aria-label="menu" onClick={goToMain}>
@@ -78,8 +88,8 @@ export const LoadWishlist = ({ history }: RouteChildrenProps) => {
                         :
                         wishlists.map((w) =>
                             <Card key={w.id} className={classes.card} >
-                                <CardActionArea onClick={() => openWishlist(w)}>
-                                    <Box p={2}>
+                                <CardActionArea onClick={() => openWishlist(w)} className={classes.cardActionArea}>
+                                    <Box p={2} flexGrow="0" flexShrink="1" overflow="hidden">
                                         <Typography gutterBottom variant="h5" component="h2">
                                             {w.name}
                                         </Typography>

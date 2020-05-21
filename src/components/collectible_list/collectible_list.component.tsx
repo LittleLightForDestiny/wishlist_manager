@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box, useTheme, useMediaQuery } from "@material-ui/core";
 import { DestinyCollectibleDefinition } from "bungie-api-ts/destiny2/interfaces";
 import React from "react";
 import RSC from 'react-scrollbars-custom';
@@ -56,6 +56,8 @@ const CustomScrollbarsVirtualList = React.forwardRef((props, ref) => (
 
 export const CollectibleList = (props: CollectibleListProps) => {
     const outerRef = React.createRef();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
     const buildItem = (collectible: DestinyCollectibleDefinition) => {
         
@@ -69,7 +71,7 @@ export const CollectibleList = (props: CollectibleListProps) => {
         <AutoSizer style={{ width: "100%", height: "100%" }}>
             {({ height, width }) => {
                 let totalItems = props.collectibles.length;
-                let columnCount = 3;
+                let columnCount = isMobile ? 1 : 3;
                 let rowCount = Math.ceil(totalItems / columnCount);
                 return (
 

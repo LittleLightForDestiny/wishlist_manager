@@ -1,5 +1,5 @@
 
-import { Box, Button, Card, Checkbox, createStyles, Divider, FormControlLabel, Grid, makeStyles, TextField, Theme } from "@material-ui/core";
+import { Box, Button, Card, Checkbox, createStyles, Divider, FormControlLabel, Grid, makeStyles, TextField, Theme, useMediaQuery, useTheme } from "@material-ui/core";
 import { DestinyInventoryItemDefinition, DestinyItemSocketCategoryDefinition } from "bungie-api-ts/destiny2/interfaces";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import ScrollContainer from "react-scrollbars-custom";
@@ -44,6 +44,15 @@ function createBlankBuild(wishlistId:number, itemHash:number):WishlistBuild{
     };
 }
 
+const ScrollableWhen = ({ children, condition }: any) => {
+    if (condition) {
+        return <ScrollContainer disableTracksWidthCompensation={true} noScrollX>
+            {children}
+        </ScrollContainer>;
+    }
+    return children;
+};
+
 export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistBuild, def: DestinyInventoryItemDefinition }) => {
     const classes = useStyles();
     const blankBuild:WishlistBuild = createBlankBuild(props.wishlistId, props.def.hash);
@@ -56,6 +65,9 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
     const [build, setBuild] = useState<WishlistBuild>(props.build || {
         ...blankBuild
     });
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {
         var fieldName = event.target.id;
@@ -197,7 +209,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
         <Card style={{ height: "100%" }}>
             <Box display="flex" flexDirection="column" p={1} height="100%">
                 <Grid container spacing={1}>
-                    <Grid item md={8}>
+                    <Grid item xs={12} sm={8}>
                         <form noValidate autoComplete="off" style={{ width: "100%" }}>
                             <Box pb={1}>
                                 <TextField id="name" label="Name" variant="outlined" fullWidth onChange={onChange} value={build.name} />
@@ -207,7 +219,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                             </Box>
                         </form>
                     </Grid>
-                    <Grid item md={4}>
+                    <Grid item xs={12} sm={4}>
                         <SectionHeader>Tag</SectionHeader>
                         <Card variant="outlined">
                             <Box p={1} py={0} display="flex" flexWrap="wrap">
@@ -263,10 +275,10 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                         </Card>
                     </Grid>
                 </Grid>
-                <Box flex={1} flexGrow={1}>
-                    <ScrollContainer noScrollX>
+                <Box flex={1} flexGrow={1} mt={1}>
+                    <ScrollableWhen condition={!isMobile}>
                         <Grid container spacing={1}>
-                            <Grid item md={6}>
+                            <Grid item xs={12} sm={6}>
                                 <SectionHeader>
                                     Selected Perks
                                 </SectionHeader>
@@ -281,7 +293,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     )}
                                 </Box>
                             </Grid>
-                            <Grid item md={6}>
+                            <Grid item xs={12} sm={6}>
                                 <Box mr={1}>
                                     <SectionHeader>
                                         Curated Perks
@@ -311,7 +323,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     </Box>) : <Box></Box>}
                             </Grid>
                         </Grid>
-                    </ScrollContainer>
+                    </ScrollableWhen>
                 </Box>
                 <Box m={1} my={0}>
                     <Divider></Divider>

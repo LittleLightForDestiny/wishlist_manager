@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { AppBar, Box, createStyles, CssBaseline, fade, IconButton, InputBase, makeStyles, Modal, Paper, Theme, Toolbar, Typography, Switch } from "@material-ui/core";
+import { AppBar, Box, createStyles, CssBaseline, fade, IconButton, InputBase, makeStyles, Modal, Paper, Theme, Toolbar, Typography, Switch, useTheme, useMediaQuery } from "@material-ui/core";
 import { Close as CloseIcon, Search as SearchIcon } from '@material-ui/icons';
 import { DestinyCollectibleDefinition, DestinyPresentationNodeDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
 import React, { useEffect, useMemo, useState } from "react";
@@ -21,7 +21,7 @@ interface ExtendedCollectible extends DestinyCollectibleDefinition {
 interface WeaponSearchData {
     nodes: DestinyPresentationNodeDefinition[];
     collectibles: ExtendedCollectible[];
-    items: {[ids:string]:(DestinyInventoryItemDefinition & {hasRandomPerks?:false})};
+    items: { [ids: string]: (DestinyInventoryItemDefinition & { hasRandomPerks?: false }) };
 }
 
 async function loadSearchData(): Promise<WeaponSearchData> {
@@ -50,7 +50,7 @@ async function loadSearchData(): Promise<WeaponSearchData> {
     return {
         nodes: weaponNodes,
         collectibles: collectibles,
-        items:items
+        items: items
     }
 }
 
@@ -133,6 +133,8 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
     const [collectibles, setCollectibles] = useState<ExtendedCollectible[]>([]);
     const [data, setData] = useState<WeaponSearchData>();
     const [filteredCollectibles, setFilteredCollectibles] = useState<ExtendedCollectible[]>([]);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
 
     const setPresentationNodeState = (hash: number, on: boolean) => {
@@ -145,7 +147,7 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
         setEnabledNodes(nodeHashes);
     }
 
-    const filterCollectibles = ()=>{
+    const filterCollectibles = () => {
         setFilteredCollectibles(collectibles.filter((c) => {
             let nodeMatch = enabledNodes.has(c.ammoNodeHash) && enabledNodes.has(c.typeNodeHash);
             let textMatch = c.displayProperties.name.toLowerCase().indexOf(textSearch) > -1;
@@ -155,7 +157,7 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
         }));
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         filterCollectibles();
     }, [debouncedSearchTerm, enabledNodes, onlyRandomRolls]);
 
@@ -171,9 +173,10 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
         load();
     }, []);
 
-    return (<DefaultModal display="flex" flexDirection="row" width="calc(100vw - 80px)" height="calc(100vh - 80px)">
-            <CssBaseline />
-            {useMemo(()=><Paper square elevation={5} className={classes.drawer}>
+    return (<DefaultModal display="flex" flexDirection="row" width={isMobile ? '100vw' : "calc(100vw - 80px)"} height={isMobile ? '100vh' : "calc(100vh - 80px)"}>
+        <CssBaseline />
+        {useMemo(() => {
+            isMobile ? <Box></Box> : <Paper square elevation={5} className={classes.drawer}>
                 <AmmoTypeSelector presentationNodes={nodes} enabledHashes={enabledNodes} filterToggle={setPresentationNodeState}></AmmoTypeSelector>
                 <Box pt={1}></Box>
                 <ScrollContainer className={classes.weaponTypeList} disableTracksWidthCompensation={true} >
@@ -181,38 +184,39 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
                 </ScrollContainer>
                 <Box p={1} pb={0} display="flex" justifyContent="space-between" alignItems="center" height={30}>
                     <div>Only random rolls</div>
-                    <Switch value={onlyRandomRolls} onChange={(_, value)=>setOnlyRandomRolls(value)}></Switch>
+                    <Switch value={onlyRandomRolls} onChange={(_, value) => setOnlyRandomRolls(value)}></Switch>
                 </Box>
-            </Paper>, [enabledNodes, onlyRandomRolls])}
-            <Box width="100%" display="flex" flexDirection="column">
-                <AppBar position="static">
-                    <Toolbar className={classes.toolbar}>
-                        <Typography variant="h6" noWrap>
-                            Add Weapon
-                        </Typography>
-                        <Box className={classes.search}>
-                            <Box className={classes.searchIcon}>
-                                <SearchIcon />
-                            </Box>
-                            <InputBase
-                                onChange={(event) => { setTextSearch(event.target.value) }}
-                                placeholder="Search…"
-                                classes={{
-                                    root: classes.inputRoot,
-                                    input: classes.inputInput,
-                                }}
-                                inputProps={{ 'aria-label': 'search' }}
-                            />
+            </Paper>
+        }, [enabledNodes, onlyRandomRolls, isMobile])}
+        <Box width="100%" display="flex" flexDirection="column">
+            <AppBar position="static">
+                <Toolbar className={classes.toolbar}>
+                    {isMobile ? <Box></Box> : <Typography variant="h6" noWrap>
+                        Add Weapon
+                        </Typography>}
+                    <Box className={classes.search}>
+                        <Box className={classes.searchIcon}>
+                            <SearchIcon />
                         </Box>
-                        <Box flex={1}></Box>
-                        <IconButton component={Link} to={`/wishlist/e/${params.wishlistId}/`}>
-                            <CloseIcon></CloseIcon>
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
-                <Box flex={2}>
-                    {useMemo(() => <CollectibleList wishlistId={wishlistId} collectibles={filteredCollectibles}></CollectibleList>, [filteredCollectibles])}
-                </Box>
+                        <InputBase
+                            onChange={(event) => { setTextSearch(event.target.value) }}
+                            placeholder="Search…"
+                            classes={{
+                                root: classes.inputRoot,
+                                input: classes.inputInput,
+                            }}
+                            inputProps={{ 'aria-label': 'search' }}
+                        />
+                    </Box>
+                    <Box flex={1}></Box>
+                    <IconButton component={Link} to={`/wishlist/e/${params.wishlistId}/`}>
+                        <CloseIcon></CloseIcon>
+                    </IconButton>
+                </Toolbar>
+            </AppBar>
+            <Box flex={2}>
+                {useMemo(() => <CollectibleList wishlistId={wishlistId} collectibles={filteredCollectibles}></CollectibleList>, [filteredCollectibles])}
             </Box>
-        </DefaultModal>);
+        </Box>
+    </DefaultModal>);
 };

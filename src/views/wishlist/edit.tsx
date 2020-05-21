@@ -1,6 +1,6 @@
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faPlusCircle, faFileExport, faDownload } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { AppBar, Box, Button, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography } from "@material-ui/core";
+import { AppBar, Box, Button, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography, useMediaQuery, useTheme } from "@material-ui/core";
 import { countBy, map as _map } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, RouteChildrenProps } from "react-router-dom";
@@ -79,6 +79,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
     const { wishlistId } = match?.params as any;
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
     const classes = useStyles();
     const [wishlist, setWishlist] = useState<Wishlist>();
     const [items, setItems] = useState<BuildCount[]>();
@@ -124,16 +126,29 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                 <Typography variant="h6" className={classes.title}>
                     {wishlist?.name}
                 </Typography>
-                <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/item/add`}>Add Item</Button>
-                <Box p={1}></Box>
-                <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>Export Wishlist</Button>
+                {isMobile ? 
+                    <IconButton color="inherit" aria-label="menu" component={Link} to={`/wishlist/e/${wishlist?.id}/item/add`}>
+                        <FontAwesomeIcon icon={faPlusCircle}></FontAwesomeIcon>
+                    </IconButton>
+                    :
+                    <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/item/add`}>Add Item</Button>
+                }
+                <Box p={isMobile ? 0 : 1}></Box>
+                {
+                    isMobile ? 
+                    <IconButton color="inherit" aria-label="menu" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>
+                        <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
+                    </IconButton>
+                    :
+                    <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>Export Wishlist</Button>
+                }
             </Toolbar>
         </AppBar>
         {useMemo(()=><Box flexGrow="1" >
             <AutoSizer style={{ width: "100%", height: "100%" }}>
                 {({ height, width }) => {
                     let totalItems = items?.length || 0;
-                    let columnCount = 3;
+                    let columnCount = isMobile ? 1 : 3;
                     let rowCount = Math.ceil(totalItems / columnCount);
                     return (
                         <FixedSizeGrid
