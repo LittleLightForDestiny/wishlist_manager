@@ -25,60 +25,9 @@ export const WishlistImporter = (props: {
             return url.substring(0, firstslashindex + 1) + "..." + url.substring(lastslashindex);
         }
     }
-    
 
     let importSource = getImportSource();
     
-    useEffect(()=>{
-        async function load():Promise<any>{
-            switch(props.data?.media){
-                case MediaType.Link:
-                    let res = await Axios.get(props.data.data as string);
-                    return res.data;
-
-                case MediaType.Upload:
-                    let file:File = props.data.data as File;
-                    let reader:FileReader = new FileReader();
-                    return new Promise((resolve)=>{
-                        reader.addEventListener('load', (event)=>{
-                            try{
-                                let json = JSON.parse(event?.target?.result as string || "");
-                                resolve(json);    
-                            }catch(e){}
-                        });
-                        reader.readAsText(file);
-                    });
-                    
-            }
-            return null;
-        }
-        async function importWishlist(data:any){
-            switch(props.data?.type){
-                case WishlistType.LittleLight:
-                    return importLittleLight(data);
-            }
-            return null;
-        }
-
-        async function loadAndImport(){
-            let content = await load();
-            let imported = await importWishlist(content);
-            if(imported){
-                if(!imported.wishlist.name){
-                    let filename = importSource;
-                    let names = filename.split('/');
-                    filename = names[names.length - 1];
-                    imported.wishlist.name = filename;
-                }
-                if(!imported.wishlist.description){
-                    imported.wishlist.description = "";
-                }
-                props.onFinish(imported);
-            }
-        }
-
-        loadAndImport();
-    }, [props, importSource]);
     return (
         <Box>
             <Box p={2} display="flex" flexDirection="column" alignItems="center">

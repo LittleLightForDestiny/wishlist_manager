@@ -11,16 +11,18 @@ export enum MediaType {
     Link = "link"
 }
 
-export type WishlistData = {type:WishlistType, media:MediaType, data:File|string};
+export type WishlistData = {type?:WishlistType, media?:MediaType, data?:File|string};
 
 export type OnWishlistImport = (data:WishlistData) => void;
 
 export const ImportWishlistForm = (props: {
+    data?:WishlistData,
     onImport: OnWishlistImport
 }) => {
-    const [wishlistType, setWishlistType] = useState<WishlistType|null>(null);
-    const [mediaType, setMediaType] = useState<MediaType|null>(null);
-    const [wishlistURL, setWishlistURL] = useState<string>("");
+    console.log(props.data);
+    const [wishlistType, setWishlistType] = useState<WishlistType | undefined>(props.data?.type);
+    const [mediaType, setMediaType] = useState<MediaType | undefined>(props.data?.media || undefined);
+    const [wishlistURL, setWishlistURL] = useState<string | undefined>(typeof(props.data?.data) == "string" ? props.data?.data : undefined);
     const [wishlistFile, setWishlistFile] = useState<File>();
 
     const getMediaField = () => {
@@ -66,7 +68,7 @@ export const ImportWishlistForm = (props: {
 
         switch (mediaType) {
             case MediaType.Link:
-                return isUrl(wishlistURL);
+                return isUrl(wishlistURL || "");
 
             case MediaType.Upload:
                 return !!wishlistFile;

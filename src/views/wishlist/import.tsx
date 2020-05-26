@@ -1,14 +1,17 @@
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AppBar, Box, Container, createStyles, IconButton, makeStyles, Paper, Theme, Toolbar, Typography, CircularProgress } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RouteChildrenProps } from "react-router-dom";
 import Wishlist, { WishlistBuild } from "../../interfaces/wishlist.interface";
 import { saveBuild } from "../../services/wishlistBuild.service";
 import { createWishlist } from "../../services/wishlists.service";
 import { OnImportFinish, WishlistImporter } from "./import/importer";
 import { ImporterMetadataForm } from "./import/importer_metadata_form";
-import { ImportWishlistForm, OnWishlistImport, WishlistData as WishlistFormData } from "./import/import_form";
+import { ImportWishlistForm, OnWishlistImport, WishlistData as WishlistFormData, MediaType, WishlistType } from "./import/import_form";
+import { parse } from "query-string";
+import { importWishlistFile } from "../../utils/wishlist_loader";
+import { importLittleLight } from "../../utils/converters/littlelight.converter";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -38,12 +41,14 @@ enum Phase {
     importForm = "import-form",
     importing = "importing",
     metadataForm = "metadataForm",
-    saving="saving"
+    saving = "saving"
 }
 
-export const ImportWishlist = ({ history }: RouteChildrenProps) => {
+export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
+
     const classes = useStyles();
     const [phase, setPhase] = useState<Phase>(Phase.importForm);
+
     const [formData, setFormData] = useState<WishlistFormData>();
     const [progress, setProgress] = useState(0);
     const [total, setTotal] = useState(0);
@@ -53,9 +58,15 @@ export const ImportWishlist = ({ history }: RouteChildrenProps) => {
         builds: WishlistBuild[]
     }>();
 
-    const importFile: OnWishlistImport = (data) => {
+    const importFile: OnWishlistImport = async (data) => {
         setFormData(data);
         setPhase(Phase.importing);
+
+        let fileData = await importWishlistFile(data.media!, data.data!);
+        switch (data?.type) {
+            case WishlistType.LittleLight:
+                importFinish(importLittleLight(fileData));
+        }
     }
 
     const importFinish: OnImportFinish = (data) => {
@@ -77,10 +88,18 @@ export const ImportWishlist = ({ history }: RouteChildrenProps) => {
         }
         history.push(`/wishlist/e/${w.id}`);
     }
-    
+
     const goToMain = () => {
         history.push("/");
     }
+
+    useEffect(() => {
+        const urlParams: any = location.search ? parse(location.search) : null;
+        const autoImport: boolean = urlParams && urlParams["type"] && urlParams["link"];
+        if (autoImport) {
+            importFile({ type: urlParams["type"], data: urlParams["link"], media: MediaType.Link });
+        };
+    }, [location.search]);
 
     return (
         <Container maxWidth="sm">
@@ -98,7 +117,7 @@ export const ImportWishlist = ({ history }: RouteChildrenProps) => {
                         {() => {
                             switch (phase) {
                                 case Phase.importForm:
-                                    return <ImportWishlistForm onImport={importFile}></ImportWishlistForm>;
+                                    return <ImportWishlistForm data={formData} onImport={importFile}></ImportWishlistForm>;
                                 case Phase.importing:
                                     return <WishlistImporter onFinish={importFinish} data={formData}></WishlistImporter>
                                 case Phase.metadataForm:
