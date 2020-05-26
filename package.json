@@ -25,6 +25,7 @@
     "awesome-debounce-promise": "^2.1.0",
     "axios": "^0.19.2",
     "bungie-api-ts": "^2.4.0",
+    "delay": "^4.3.0",
     "dexie": "^2.0.4",
     "dexie-observable": "^1.0.0-beta.7",
     "is-url": "^1.2.4",

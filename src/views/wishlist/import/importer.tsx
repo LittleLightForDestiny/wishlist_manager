@@ -1,9 +1,7 @@
 import { Box, CircularProgress } from "@material-ui/core";
-import Axios from "axios";
-import React, { useEffect } from "react";
-import { MediaType, WishlistData, WishlistType } from "./import_form";
-import {Wishlist, WishlistBuild} from '../../../interfaces/wishlist.interface';
-import { importLittleLight } from "../../../utils/converters/littlelight.converter";
+import React from "react";
+import { Wishlist, WishlistBuild } from '../../../interfaces/wishlist.interface';
+import { MediaType, WishlistData } from "./import_form";
 
 export type OnImportFinish = (data:{
     wishlist:Wishlist,

@@ -12,6 +12,7 @@ import { ImportWishlistForm, OnWishlistImport, WishlistData as WishlistFormData,
 import { parse } from "query-string";
 import { importWishlistFile } from "../../utils/wishlist_loader";
 import { importLittleLight } from "../../utils/converters/littlelight.converter";
+import delay from 'delay';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,15 +59,20 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
         builds: WishlistBuild[]
     }>();
 
-    const importFile: OnWishlistImport = async (data) => {
-        setFormData(data);
-        setPhase(Phase.importing);
-
+    const loadAndImport = async (data:WishlistFormData) => {
         let fileData = await importWishlistFile(data.media!, data.data!);
         switch (data?.type) {
             case WishlistType.LittleLight:
-                importFinish(importLittleLight(fileData));
+                return importLittleLight(fileData);
         }
+    }
+
+    const importFile: OnWishlistImport = async (data) => {
+        setFormData(data);
+        setPhase(Phase.importing);
+        let importedData = await loadAndImport(data);
+        setImportedData(importedData);
+        setPhase(Phase.metadataForm);
     }
 
     const importFinish: OnImportFinish = (data) => {
@@ -74,8 +80,7 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
         setPhase(Phase.metadataForm);
     };
 
-    const onSaveFinish = async () => {
-        setPhase(Phase.saving);
+    const saveToDatabase = async (importedData:any):Promise<Wishlist>=>{
         setTotal(importedData?.builds?.length || 0);
         let w = await createWishlist(importedData?.wishlist!);
         for (let i in importedData?.builds) {
@@ -86,6 +91,12 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
             });
             setProgress(parseInt(i));
         }
+        return w;
+    }
+
+    const onSaveFinish = async () => {
+        setPhase(Phase.saving);
+        let w = await saveToDatabase(importedData!);
         history.push(`/wishlist/e/${w.id}`);
     }
 
@@ -94,13 +105,24 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
     }
 
     useEffect(() => {
-        const urlParams: any = location.search ? parse(location.search) : null;
-        const autoImport: boolean = urlParams && urlParams["type"] && urlParams["link"];
-        if (autoImport) {
-            importFile({ type: urlParams["type"], data: urlParams["link"], media: MediaType.Link });
-        };
+        async function checkURL(){
+            const urlParams: any = location.search ? parse(location.search) : null;
+            const autoImport: boolean = !!urlParams && !!urlParams["type"] && !!urlParams["link"];
+            if(!autoImport) return;
+            let formData:WishlistFormData = {type:urlParams["type"], media:MediaType.Link, data:urlParams["link"]};
+            setFormData(formData);
+            await delay(100);
+            setPhase(Phase.importing);
+            let importedData = await loadAndImport(formData);
+            setImportedData(importedData);
+            await delay(100);
+            setPhase(Phase.saving);
+            let w = await saveToDatabase(importedData!);
+            history.push(`/wishlist/e/${w.id}`);
+        }
+        checkURL();
     }, [location.search]);
-
+    console.log(formData);
     return (
         <Container maxWidth="sm">
             <Box className={classes.root}>
