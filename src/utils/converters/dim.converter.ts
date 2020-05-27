@@ -55,13 +55,14 @@ const compileBuildLines = async (build:WishlistBuild):Promise<string>=>{
     let lines = "";
     lines+= await getNameLine(build);
     if(build.description){
-        lines+=`// notes: ${build.description} \n`;
+        lines+=`//notes: ${build.description}`;
+        if(build.tags?.length && lines.indexOf('tags:') < 0){
+            lines+=` tags:${exportTags(build.tags).join(',')}`;
+        }
+        lines+="\n";
     }
-    if(build.tags?.length){
-        lines+=`// tags:${exportTags(build.tags).join(',')}\n`;
-    }
+    
     let permutations = cartesianProduct<number>(...build.plugs!);
-    console.log(permutations);
     for(var l in permutations){
         let line = permutations[l];
         lines+=`dimwishlist:item=${build.itemHash}&perks=${line.join(',')}\n`;
