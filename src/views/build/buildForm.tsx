@@ -309,7 +309,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     {selectedPerks.map((perks, index) =>
                                         <Box key={index} className={classes.perkColumn}>
                                             {perks.map((p) =>
-                                                 buildPerkIcon(p, ()=>addPerk(p, index)))}
+                                                 buildPerkIcon(p, ()=>removePerk(p, index)))}
                                         </Box>
                                     )}
                                 </Box>

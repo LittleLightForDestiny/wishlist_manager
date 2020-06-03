@@ -85,7 +85,18 @@ export const exportDIM = async (wishlistId:number):Promise<string> => {
         result+='\n';
     }
 
-    for(var i in builds){
+    builds = builds.sort((a,b)=>{
+        let aHash = a.itemHash || 0;
+        let bHash = b.itemHash || 0;
+        let hashResult = aHash - bHash;
+        if(hashResult !== 0) return hashResult;
+        let aGodRollCount = a.tags?.filter((t)=>[WishlistTag.GodPvE, WishlistTag.GodPvP].indexOf(t) > -1)?.length || 0;
+        let bGodRollCount = b.tags?.filter((t)=>[WishlistTag.GodPvE, WishlistTag.GodPvP].indexOf(t) > -1)?.length || 0;
+        
+        return bGodRollCount - aGodRollCount;
+    });
+
+    for(let i=0; i < builds.length; i++){
         let build = builds[i];
         result+= await compileBuildLines(build);
     };
