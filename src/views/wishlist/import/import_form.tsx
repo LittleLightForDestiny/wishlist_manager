@@ -4,7 +4,9 @@ import React, { useState } from "react";
 
 export enum WishlistType {
     LittleLight = "little_light",
-    DIM = "dim"
+    DIM = "dim",
+    CSV = "csv",
+    XLS = "xls",
 }
 export enum MediaType {
     Upload = "upload",

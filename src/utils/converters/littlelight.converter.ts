@@ -71,7 +71,7 @@ export const importLittleLight = (content: LittleLightWishlistData): { wishlist:
     };
 }
 
-export const exportLittleLight = async (wishlistId:number):Promise<string> => {
+export const exportLittleLight = async (wishlistId:number):Promise<Blob> => {
     let wishlist = await getWishlist(wishlistId);
     let builds = await getBuilds(wishlistId);
     let dataBuilds:LittleLightWishlistBuild[] = builds.map((b):LittleLightWishlistBuild=>{
@@ -83,9 +83,11 @@ export const exportLittleLight = async (wishlistId:number):Promise<string> => {
             tags:exportTags(b.tags || [])
         };
     });
-    return JSON.stringify({
+    let json = JSON.stringify({
         description:wishlist?.description || "",
         name:wishlist?.name || "",
         data:dataBuilds
     });
+    var blob = new Blob([json], {type: "application/json"});
+    return blob;
 }

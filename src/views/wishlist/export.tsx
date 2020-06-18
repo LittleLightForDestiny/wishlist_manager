@@ -8,6 +8,9 @@ import { RouteChildrenProps } from "react-router-dom";
 import { exportLittleLight } from "../../utils/converters/littlelight.converter";
 import { getWishlist } from "../../services/wishlists.service";
 import { exportDIM } from "../../utils/converters/dim.converter";
+import { exportCSV } from "../../utils/converters/csv.converter";
+import { saveAs } from 'file-saver';
+import { exportXLS } from "../../utils/converters/xls.converter";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,7 +56,7 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
         let wishlist = await getWishlist(parseInt(wishlistId));
         let filename = "";
         let extension = "";
-        let data: string = "";
+        let data: Blob | null = null;
         switch (wishlistType) {
             case WishlistType.LittleLight:
                 data = await exportLittleLight(parseInt(wishlistId));
@@ -66,13 +69,22 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
                 filename = (wishlist?.name || "wishlist").replace(/.(json|txt)$/, "");
                 extension = 'txt';
                 break;
+            case WishlistType.CSV:
+                data = await exportCSV(parseInt(wishlistId));
+                filename = (wishlist?.name || "wishlist").replace(/.(json|txt)$/, "");
+                extension = 'csv';
+                break;
+
+            case WishlistType.XLS:
+                data = await exportXLS(parseInt(wishlistId));
+                filename = (wishlist?.name || "wishlist").replace(/.(json|txt)$/, "");
+                extension = 'xlsx';
+                break;
         }
-        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
-        let dlAnchorElem = document.createElement('a');
-        dlAnchorElem.setAttribute("href", dataStr);
-        dlAnchorElem.setAttribute("download", `${filename}.${extension}`);
-        dlAnchorElem.click();
-        document.body.appendChild(dlAnchorElem);
+        if (!data) return;
+
+        saveAs(data, `${filename}.${extension}`);
+
         setWorking(false);
         close();
     }
@@ -105,6 +117,8 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
                                 onChange={(_, value) => setWishlistType(value as any)}>
                                 <FormControlLabel value={WishlistType.LittleLight} control={<Radio />} label="Little Light" />
                                 <FormControlLabel value={WishlistType.DIM} control={<Radio />} label="DIM" />
+                                <FormControlLabel value={WishlistType.CSV} control={<Radio />} label="CSV" />
+                                <FormControlLabel value={WishlistType.XLS} control={<Radio />} label="XLS" />
                             </RadioGroup>
                         </Card>
                         <Box pt={2} display="flex" justifyContent="flex-end">

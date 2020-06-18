@@ -70,7 +70,7 @@ const compileBuildLines = async (build:WishlistBuild):Promise<string>=>{
     return `${lines}\n\n`;
 }
 
-export const exportDIM = async (wishlistId:number):Promise<string> => {
+export const exportDIM = async (wishlistId:number):Promise<Blob> => {
     let wishlist = await getWishlist(wishlistId);
     let builds = await getBuilds(wishlistId);
 
@@ -100,5 +100,7 @@ export const exportDIM = async (wishlistId:number):Promise<string> => {
         let build = builds[i];
         result+= await compileBuildLines(build);
     };
-    return result;
+
+    var blob = new Blob([result], {type: "text/plain"});
+    return blob;
 }
