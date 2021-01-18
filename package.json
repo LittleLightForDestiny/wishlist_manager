@@ -24,7 +24,7 @@
     "@types/react-virtualized-auto-sizer": "^1.0.0",
     "@types/react-window": "^1.8.2",
     "awesome-debounce-promise": "^2.1.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bungie-api-ts": "^2.4.0",
     "delay": "^4.3.0",
     "dexie": "^2.0.4",
