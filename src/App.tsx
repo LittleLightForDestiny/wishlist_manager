@@ -1,12 +1,12 @@
-import { createMuiTheme, ThemeProvider, colors, Box, CircularProgress } from '@material-ui/core';
+import { Box, CircularProgress, colors, createMuiTheme, ThemeProvider } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
+import 'simplebar/dist/simplebar.min.css';
+import './App.scss';
+import { loadManifest } from './services/manifest.service';
 import { Welcome } from './views/welcome/welcome.view';
 import WishlistsIndex from './views/wishlist';
 
-import 'simplebar/dist/simplebar.min.css';
-import './App.scss';
-import { loadInventoryItemList, loadCollectibles } from './services/data.service';
 
 
 
@@ -22,8 +22,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   useEffect(()=>{
     async function load(){
-      await loadCollectibles();
-      await loadInventoryItemList();
+      await loadManifest();
       setLoading(false);
     }
     load();

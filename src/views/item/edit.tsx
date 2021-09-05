@@ -8,12 +8,12 @@ import { DefaultModal } from "../../components/default_modal/defaultModal.compon
 import { SectionHeader } from "../../components/section_header/section_header.component";
 import { WishlistBuildListItem } from "../../components/wishlist_build_list_item/wishlist_build_list_item.component";
 import { WishlistBuild } from "../../interfaces/wishlist.interface";
-import { loadInventoryItemDefinition } from "../../services/data.service";
 import db from '../../services/database.service';
 import { deleteBuild, getBuilds } from "../../services/wishlistBuild.service";
 import { bungieURL } from "../../utils/bungie_url";
 import WishlistBuildForm from "../build/buildForm";
 import {cloneDeep} from "lodash";
+import { getInventoryItemDefinition } from "../../services/manifest.service";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -50,7 +50,7 @@ export const EditItem = ({ match, history }: RouteChildrenProps<{ itemHash: stri
         }
 
         async function load() {
-            let def = await loadInventoryItemDefinition(itemHash);
+            let def = getInventoryItemDefinition(itemHash);
             setDefinition(def);
             refreshBuilds();
         }
@@ -60,10 +60,14 @@ export const EditItem = ({ match, history }: RouteChildrenProps<{ itemHash: stri
             refreshBuilds();
         }
 
-        db.on('changes', onDbChanges);
+        db?.wishlistBuilds?.hook('creating', onDbChanges);
+        db?.wishlistBuilds?.hook('updating', onDbChanges);
+        db?.wishlistBuilds?.hook('deleting', onDbChanges);
 
         return () => {
-            db.on('changes').unsubscribe(onDbChanges);
+            db?.wishlistBuilds?.hook('creating').unsubscribe(onDbChanges);
+            db?.wishlistBuilds?.hook('updating').unsubscribe(onDbChanges);
+            db?.wishlistBuilds?.hook('deleting').unsubscribe(onDbChanges);
         };
     }, [itemHash, wishlistId]);
 

@@ -1,7 +1,7 @@
 import Excel, { CellValue, RichText } from 'exceljs';
 import { compact, groupBy } from "lodash";
 import { WishlistBuild, WishlistTag } from "../../interfaces/wishlist.interface";
-import { loadInventoryItemDefinition, loadInventoryItemList } from "../../services/data.service";
+import { getInventoryItemDefinition, getInventoryItemList } from '../../services/manifest.service';
 import { getBuilds } from "../../services/wishlistBuild.service";
 import { getWishlist } from "../../services/wishlists.service";
 
@@ -38,7 +38,7 @@ interface CSVItem {
 
 async function convertPerks(hashes: number[], godHashes: number[]): Promise<CellValue> {
     if (!hashes) return "";
-    let defs = await loadInventoryItemList();
+    let defs = getInventoryItemList()!;
     let perkNames: RichText[] = [];
     for (let h = 0; h < hashes.length; h++) {
         let hash = hashes[h];
@@ -73,7 +73,7 @@ async function convertBuild(godBuild: WishlistBuild, mainBuild: WishlistBuild): 
 }
 
 async function convertItem(hash: string, builds: WishlistBuild[]): Promise<CSVItem> {
-    let def = await loadInventoryItemDefinition(parseInt(hash));
+    let def = getInventoryItemDefinition(parseInt(hash))!;
     let pveBuild = builds.filter((b) => (b.tags?.indexOf(WishlistTag.PvE) ?? -1) > -1)[0];
     let godPveBuild = builds.filter((b) => (b.tags?.indexOf(WishlistTag.GodPvE) ?? -1) > -1)[0];
     let pvpBuild = builds.filter((b) => (b.tags?.indexOf(WishlistTag.PvP) ?? -1) > -1)[0];
@@ -84,9 +84,9 @@ async function convertItem(hash: string, builds: WishlistBuild[]): Promise<CSVIt
         3: "Solar",
         4: "Void"
     };
-    let category = def.sockets.socketCategories.filter((c) => c.socketCategoryHash == 3956125808)[0];
+    let category = def.sockets.socketCategories.filter((c) => c.socketCategoryHash === 3956125808)[0];
     let intrinsicPerk = def.sockets.socketEntries[category.socketIndexes[0]];
-    let defs = await loadInventoryItemList();
+    let defs = getInventoryItemList()!;
     let intrinsicPerkDef = defs[intrinsicPerk.singleInitialItemHash];
     return {
         hash: hash,
@@ -125,7 +125,7 @@ export const exportXLS = async (wishlistId: number): Promise<Blob> => {
         let bucketIndexA = buckets.indexOf(a.bucketHash);
         let bucketIndexB = buckets.indexOf(b.bucketHash);
         let bucketDiff = bucketIndexA - bucketIndexB;
-        if (bucketDiff != 0) return bucketDiff;
+        if (bucketDiff !== 0) return bucketDiff;
         if (a.type > b.type) return 1;
         if (a.type < b.type) return -1;
         return 0;
@@ -135,7 +135,7 @@ export const exportXLS = async (wishlistId: number): Promise<Blob> => {
         let item = csvItems[i];
         for (let b = 0; b < item.builds.length; b++) {
             let build = item.builds[b];
-            if (b == 0) {
+            if (b === 0) {
                 rows.push([
                     { text: item.name, hyperlink: `https://www.light.gg/db/items/${item.hash}` },
                     item.type,

@@ -109,11 +109,15 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
         async function onDbChanges(changes: any) {
             refreshItems();
         }
-
-        db.on('changes', onDbChanges);
+        
+        db?.wishlistBuilds?.hook('creating', onDbChanges);
+        db?.wishlistBuilds?.hook('updating', onDbChanges);
+        db?.wishlistBuilds?.hook('deleting', onDbChanges);
 
         return () => {
-            db.on('changes').unsubscribe(onDbChanges);
+            db?.wishlistBuilds?.hook('creating').unsubscribe(onDbChanges);
+            db?.wishlistBuilds?.hook('updating').unsubscribe(onDbChanges);
+            db?.wishlistBuilds?.hook('deleting').unsubscribe(onDbChanges);
         };
     }, [wishlistId]);
 

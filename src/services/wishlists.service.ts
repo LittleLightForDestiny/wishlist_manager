@@ -2,10 +2,11 @@ import db from "./database.service";
 import Wishlist from "../interfaces/wishlist.interface";
 
 export async function createWishlist(wishlist: Wishlist):Promise<Wishlist> {
-    let key = await db.wishlists?.add(wishlist);
+    let key = await db.wishlists?.add(wishlist).then(r=>r).catch(e=>console.log);
+    console.log(key);
     return {
         ...wishlist,
-        id: key
+        id: 1
     };
 }
 

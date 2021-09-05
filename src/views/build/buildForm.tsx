@@ -9,7 +9,7 @@ import { InventoryItemImage } from "../../components/inventory_item_image/invent
 import { ModTooltipContent } from "../../components/mod_tooltip_content/mod_tooltip_content.component";
 import { SectionHeader } from "../../components/section_header/section_header.component";
 import { WishlistBuild, WishlistTag } from "../../interfaces/wishlist.interface";
-import { loadPlugSetDefinition } from "../../services/data.service";
+import { getPlugSetDefinition } from "../../services/manifest.service";
 import { saveBuild } from "../../services/wishlistBuild.service";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -103,8 +103,8 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
             for (var i in cat.socketIndexes) {
                 let index = cat.socketIndexes[i];
                 let entry = props.def.sockets.socketEntries[index];
-                let randomPlugSet = entry.randomizedPlugSetHash ? (await loadPlugSetDefinition(entry.randomizedPlugSetHash)) : null;
-                let reusablePlugSet = entry.reusablePlugSetHash && entry.reusablePlugSetHash !== 1074 ? (await loadPlugSetDefinition(entry.reusablePlugSetHash)) : null;
+                let randomPlugSet = entry.randomizedPlugSetHash ? (getPlugSetDefinition(entry.randomizedPlugSetHash)) : null;
+                let reusablePlugSet = entry.reusablePlugSetHash && entry.reusablePlugSetHash !== 1074 ? (getPlugSetDefinition(entry.reusablePlugSetHash)) : null;
                 let curated: number[] = [];
                 let random: number[] = [];
                 if (entry.singleInitialItemHash && entry.singleInitialItemHash !== 2285418970) {

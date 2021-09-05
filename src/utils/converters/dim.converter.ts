@@ -1,5 +1,5 @@
 import { WishlistBuild, WishlistTag } from "../../interfaces/wishlist.interface";
-import { loadInventoryItemList } from "../../services/data.service";
+import { getInventoryItemList } from "../../services/manifest.service";
 import { getBuilds } from "../../services/wishlistBuild.service";
 import { getWishlist } from "../../services/wishlists.service";
 
@@ -24,7 +24,7 @@ const exportTags = (tags: WishlistTag[]): string[] => {
 
 const getNameLine = async (build:WishlistBuild):Promise<string>=>{
 
-    let list = await loadInventoryItemList();
+    let list = getInventoryItemList()!;
     let def = list[build.itemHash!];
     let line = `// ${def.displayProperties.name}`;
     let name = build.name;

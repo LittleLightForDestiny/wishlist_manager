@@ -23,7 +23,7 @@ export const ImportWishlistForm = (props: {
 }) => {
     const [wishlistType, setWishlistType] = useState<WishlistType | undefined>(props.data?.type);
     const [mediaType, setMediaType] = useState<MediaType | undefined>(props.data?.media);
-    const [wishlistURL, setWishlistURL] = useState<string | undefined>(typeof(props.data?.data) == "string" ? props.data?.data : undefined);
+    const [wishlistURL, setWishlistURL] = useState<string | undefined>(typeof(props.data?.data) === "string" ? props.data?.data : undefined);
     const [wishlistFile, setWishlistFile] = useState<File>();
 
     const getMediaField = () => {

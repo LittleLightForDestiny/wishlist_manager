@@ -2,7 +2,7 @@ import { Box, Button, Divider } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { bungieURL } from "../../utils/bungie_url";
-import { data } from "../../services";
+import { manifest } from "../../services";
 import { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
 
 interface WeaponListItemProps {
@@ -12,10 +12,9 @@ interface WeaponListItemProps {
 
 export const WeaponListItem = ({ itemHash, wishlistId }: WeaponListItemProps) => {
     let [def, setDef] = useState<DestinyInventoryItemDefinition & { hasRandomPerks?: boolean }>();
-
     useEffect(() => {
         async function load() {
-            let def = (await data.loadInventoryItemList())[itemHash];
+            let def = manifest.getInventoryItemDefinition(itemHash);
             setDef(def);
         }
         load();
