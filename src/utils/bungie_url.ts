@@ -1,3 +1,3 @@
-export function bungieURL(path:string){
-    return "https://www.bungie.net/" + path;
+export function bungieURL(path: string) {
+    return "https://www.bungie.net" + path;
 }

@@ -12,7 +12,6 @@ export const Welcome = () => {
         async function load() {
             let wishlists = await getAllWishlists();
             if ((wishlists?.length || 0) > 0) {
-                console.log('setwishlsitasdsada');
                 setWishlistsAvailable(true);
             }
         }

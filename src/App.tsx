@@ -1,4 +1,4 @@
-import { Box, CircularProgress, colors, createMuiTheme, ThemeProvider } from '@material-ui/core';
+import { Box, CircularProgress, colors, createTheme, ThemeProvider } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import 'simplebar/dist/simplebar.min.css';
@@ -10,7 +10,7 @@ import WishlistsIndex from './views/wishlist';
 
 
 
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     primary: colors.blueGrey,
     secondary: colors.lightBlue,
@@ -20,8 +20,8 @@ const theme = createMuiTheme({
 
 function App() {
   const [loading, setLoading] = useState(true);
-  useEffect(()=>{
-    async function load(){
+  useEffect(() => {
+    async function load() {
       await loadManifest();
       setLoading(false);
     }
@@ -29,18 +29,18 @@ function App() {
   }, []);
   return (
     <ThemeProvider theme={theme}>
-      {loading ? 
-      <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column" width="100vw" height="100vh">
-        <CircularProgress></CircularProgress>
-        <Box p={3} color="#FFFFFF">
-          Loading game data ...
+      {loading ?
+        <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column" width="100vw" height="100vh">
+          <CircularProgress></CircularProgress>
+          <Box p={3} color="#FFFFFF">
+            Loading game data ...
+          </Box>
         </Box>
-      </Box>
-      :
-      <Router>
-        <Route exact path="/" component={Welcome}></Route>
-        <Route path="/wishlist" component={WishlistsIndex}></Route>
-      </Router>
+        :
+        <Router>
+          <Route exact path="/" component={Welcome}></Route>
+          <Route path="/wishlist" component={WishlistsIndex}></Route>
+        </Router>
       }
     </ThemeProvider>
   );

@@ -72,6 +72,10 @@ export function getInventoryItemList(): { [id: string]: DestinyInventoryItemDefi
     return manifestData.DestinyInventoryItemDefinition;
 }
 
+export function getCollectibleDefinition(collectibleHash: number): DestinyCollectibleDefinition | undefined {
+    return manifestData.DestinyCollectibleDefinition?.[collectibleHash];
+}
+
 export function getInventoryItemDefinition(itemHash: number): DestinyInventoryItemDefinition | undefined {
     return manifestData.DestinyInventoryItemDefinition?.[itemHash];
 }

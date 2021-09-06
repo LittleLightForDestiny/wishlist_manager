@@ -1,12 +1,13 @@
 import axios from "axios";
 import { DestinyCollectibleDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
-import { getCollectibles, getInventoryItemDefinition, getPresentationNodes } from "./manifest.service";
+import { getCollectibleDefinition, getCollectibles, getInventoryItemDefinition, getPresentationNodes } from "./manifest.service";
 
 const rootNode = 3790247699;
 const destinyWeaponType = 3;
 let filteredWeapons: ExtendedCollectible[];
 let allCollectibles: { [id: string]: DestinyCollectibleDefinition };
 let sourceToSeason: { [id: string]: number };
+let watermarkToSeason: { [id: string]: number };
 
 export interface ExtendedCollectible extends DestinyCollectibleDefinition {
     item?: DestinyInventoryItemDefinition;
@@ -14,13 +15,14 @@ export interface ExtendedCollectible extends DestinyCollectibleDefinition {
 }
 
 async function loadD2AI() {
+    if (sourceToSeason) return;
     sourceToSeason = (await axios.get("https://raw.githubusercontent.com/DestinyItemManager/d2ai-module/master/seasons.json")).data;
+    watermarkToSeason = (await axios.get("https://raw.githubusercontent.com/DestinyItemManager/d2ai-module/master/watermark-to-season.json")).data;
 }
 
 export async function getFilterableWeapons(): Promise<ExtendedCollectible[]> {
     if (filteredWeapons) return filteredWeapons;
     await loadD2AI();
-    console.log(sourceToSeason);
     filteredWeapons = [];
     allCollectibles = getCollectibles()!;
     addItems(rootNode);
@@ -41,14 +43,31 @@ function addItems(nodeHash: number) {
 }
 
 function getExtendedCollectible(collectible: DestinyCollectibleDefinition): ExtendedCollectible {
+    const item = getInventoryItemDefinition(collectible.itemHash);
     return {
         ...collectible,
-        season: getSeason(collectible),
-        item: getInventoryItemDefinition(collectible.itemHash)
+        season: getSeason(collectible, item),
+        item
     };
 }
 
-function getSeason(collectible: DestinyCollectibleDefinition): number | undefined {
-    if (!collectible.sourceHash) return undefined;
-    return sourceToSeason[collectible.itemHash];
+export async function getSeasonByItemHash(itemHash: number) {
+    await loadD2AI();
+    const item = getInventoryItemDefinition(itemHash);
+    const collectible = getCollectibleDefinition(item?.collectibleHash);
+    return getSeason(collectible, item);
+
+}
+
+function getSeason(collectible: DestinyCollectibleDefinition, item?: DestinyInventoryItemDefinition): number | undefined {
+    if (item?.iconWatermark && watermarkToSeason[item?.iconWatermark]) {
+        return watermarkToSeason[item?.iconWatermark];
+    }
+    if (item?.iconWatermarkShelved && watermarkToSeason[item?.iconWatermarkShelved]) {
+        return watermarkToSeason[item?.iconWatermarkShelved];
+    }
+    if (sourceToSeason[collectible.sourceHash]) {
+        return sourceToSeason[collectible.sourceHash];
+    }
+    return 1;
 }

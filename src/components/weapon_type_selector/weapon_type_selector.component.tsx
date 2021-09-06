@@ -1,30 +1,59 @@
-import { Button, ButtonGroup, ButtonGroupProps } from "@material-ui/core";
-import { DestinyPresentationNodeDefinition } from "bungie-api-ts/destiny2/interfaces";
-import { intersection } from "lodash";
+import { alpha, Box, Button, ButtonGroup, ButtonGroupProps, createStyles, makeStyles, Theme } from "@material-ui/core";
 import React from "react";
 
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        typeButton: {
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            borderWidth: "1px",
+            borderStyle: "solid",
+            borderColor: alpha(theme.palette.common.white, .23),
+            backgroundColor: theme.palette.primary.dark
+        },
+        selectedButton: {
+            pointerEvents: "none",
+            backgroundColor: theme.palette.primary.main
+        },
+        boxBackground: {
+            backgroundColor: alpha(theme.palette.common.black, .23),
+            borderRadius: "8px",
+        },
+    }),
+);
+
 export interface WeaponTypeSelectorProps extends ButtonGroupProps {
-    presentationNodes: DestinyPresentationNodeDefinition[];
-    enabledHashes: Set<number>;
-    filterToggle:(hash:number, on:boolean)=>void;
+    weaponTypes?: Set<string>;
+    selectedType?: string;
+    onSelectType: (type?: string) => void;
 }
 
 export const WeaponTypeSelector = (props: WeaponTypeSelectorProps) => {
-    const buildWeaponTypeButton = (type: DestinyPresentationNodeDefinition) => {
-        let enabled = props.enabledHashes.has(type.hash);
-        return <Button key={type.hash} variant={enabled ? "contained" : "outlined"} color={enabled ? "primary" : undefined} onClick={()=>props.filterToggle(type.hash, !enabled)}>
-            {type.displayProperties.name}
+    const classes = useStyles();
+    const buildWeaponTypeButton = (type?: string, label?: string) => {
+        const selected = props.selectedType === type;
+        let buttonClasses = [classes.typeButton];
+        if (selected) buttonClasses.push(classes.selectedButton);
+        return <Button key={type}
+            className={buttonClasses.join(" ")}
+            variant={selected ? "contained" : "outlined"}
+            color={selected ? "primary" : undefined}
+            onClick={() => props.onSelectType(type)}>
+            {label ?? type}
         </Button>;
     }
-    let { 
-        presentationNodes, 
-        enabledHashes,
-        filterToggle,
+    let {
+        weaponTypes,
+        selectedType,
+        onSelectType,
         ...buttonProps } = props;
-    return <ButtonGroup orientation="vertical" {...buttonProps} >
-        {props.presentationNodes.filter((p) => {
-            let i = intersection(p.parentNodeHashes, Array.from(props.enabledHashes.values()));
-            return i.length > 0;
-        }).map((type) => buildWeaponTypeButton(type))}
-    </ButtonGroup>
+    return <Box p={2} mb={1} className={classes.boxBackground}>
+        <Box p={1} fontSize="16px">Weapon Types</Box>
+        <ButtonGroup orientation="vertical" {...buttonProps} >
+            {buildWeaponTypeButton(undefined, "All")}
+            {weaponTypes ? [...weaponTypes].map((type) => buildWeaponTypeButton(type)) : null}
+        </ButtonGroup>
+    </Box>
 }

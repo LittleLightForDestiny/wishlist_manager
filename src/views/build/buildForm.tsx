@@ -23,9 +23,9 @@ const useStyles = makeStyles((theme: Theme) =>
             flexDirection: "column",
             width: 48,
         },
-        tagCheckBox:{
-            width:"50%",
-            marginRight:0,
+        tagCheckBox: {
+            width: "50%",
+            marginRight: 0,
         },
         perk: {
             width: 48,
@@ -34,13 +34,13 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-function createBlankBuild(wishlistId:number, itemHash:number):WishlistBuild{
+function createBlankBuild(wishlistId: number, itemHash: number): WishlistBuild {
     return {
-        wishlistId:wishlistId,
-        itemHash:itemHash,
-        tags:[],
-        name:"",
-        description:""
+        wishlistId: wishlistId,
+        itemHash: itemHash,
+        tags: [],
+        name: "",
+        description: ""
     };
 }
 
@@ -55,13 +55,13 @@ const ScrollableWhen = ({ children, condition }: any) => {
 
 export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistBuild, def: DestinyInventoryItemDefinition }) => {
     const classes = useStyles();
-    const blankBuild:WishlistBuild = createBlankBuild(props.wishlistId, props.def.hash);
+    const blankBuild: WishlistBuild = createBlankBuild(props.wishlistId, props.def.hash);
 
     const [curatedPerks, setCuratedPerks] = useState<number[][]>([]);
     const [randomPerks, setRandomPerks] = useState<number[][]>([]);
     const [selectedPerks, setSelectedPerks] = useState<number[][]>([]);
     const [loaded, setLoaded] = useState<boolean>(false);
-    let initialBuild = props.build ? {...props.build} : {...blankBuild};
+    let initialBuild = props.build ? { ...props.build } : { ...blankBuild };
     const [build, setBuild] = useState<WishlistBuild>(initialBuild);
 
     const theme = useTheme();
@@ -156,27 +156,27 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
             setCuratedPerks(curatedPerks);
             setRandomPerks(randomPerks);
 
-            let buildPlugs:number[][]|null = props.build?.plugs ? [...props.build.plugs] : null;
+            let buildPlugs: number[][] | null = props.build?.plugs ? [...props.build.plugs] : null;
             setSelectedPerks(randomPerks.map((random, index) => {
-                if(!buildPlugs) return [];
+                if (!buildPlugs) return [];
                 let curated = curatedPerks[index];
-                if(buildPlugs[index]){
-                    let containsPlugs = buildPlugs[index].some((p)=>{
+                if (buildPlugs[index]) {
+                    let containsPlugs = buildPlugs[index].some((p) => {
                         return random.indexOf(p) > -1 || curated.indexOf(p) > -1;
                     });
-                    if(containsPlugs){
+                    if (containsPlugs) {
                         let result = buildPlugs[index];
                         buildPlugs[index] = [];
                         return result;
                     }
                 }
-                let sortedPlugs = [...buildPlugs].sort((a, b)=>{
-                    let countA = a.filter((p)=>random.indexOf(p) > -1 || curated.indexOf(p) > -1 ).length;
-                    let countB = b.filter((p)=>random.indexOf(p) > -1 || curated.indexOf(p) > -1).length;
+                let sortedPlugs = [...buildPlugs].sort((a, b) => {
+                    let countA = a.filter((p) => random.indexOf(p) > -1 || curated.indexOf(p) > -1).length;
+                    let countB = b.filter((p) => random.indexOf(p) > -1 || curated.indexOf(p) > -1).length;
                     return countB - countA;
                 });
 
-                if(sortedPlugs[0] && sortedPlugs[0].length > 0){
+                if (sortedPlugs[0] && sortedPlugs[0].length > 0) {
                     let originalIndex = buildPlugs.indexOf(sortedPlugs[0]);
                     buildPlugs[originalIndex] = [];
                     return sortedPlugs[0];
@@ -185,15 +185,15 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
             }));
             setLoaded(true);
         }
-        if(props.build){
+        if (props.build) {
             let blank = createBlankBuild(props.wishlistId, props.def.hash);
-            let build = {...blank, ...props.build};
-            if(!build.name) build.name = "";
-            if(!build.description) build.description = "";
-            setBuild({...build});
-        }else{
+            let build = { ...blank, ...props.build };
+            if (!build.name) build.name = "";
+            if (!build.description) build.description = "";
+            setBuild({ ...build });
+        } else {
             let blank = createBlankBuild(props.wishlistId, props.def.hash);
-            setBuild({...blank});
+            setBuild({ ...blank });
         }
         load();
     }, [props.def.sockets, props.build, props.wishlistId, props.def.hash]);
@@ -220,9 +220,9 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
         });
     }
 
-    function buildPerkIcon(p:number, onClick:()=>void) {
+    function buildPerkIcon(p: number, onClick: () => void) {
         return <Tooltip key={p} trigger="mouseenter" html={<ModTooltipContent hash={p}></ModTooltipContent>} >
-            <Box onClick={(_)=>onClick()}>
+            <Box onClick={(_) => onClick()}>
                 <InventoryItemImage className={classes.perk} hash={p}></InventoryItemImage>
             </Box>
         </Tooltip>;
@@ -281,8 +281,8 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                 <FormControlLabel
                                     className={classes.tagCheckBox}
                                     control={<Checkbox
-                                        checked={containsTag(WishlistTag.MnK)}
-                                        onChange={(_, value) => handleTagChange(WishlistTag.MnK, value)}
+                                        checked={containsTag(WishlistTag.Mouse)}
+                                        onChange={(_, value) => handleTagChange(WishlistTag.Mouse, value)}
                                         name="MnK" />}
                                     label="Mouse"
                                 />
@@ -309,7 +309,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     {selectedPerks.map((perks, index) =>
                                         <Box key={index} className={classes.perkColumn}>
                                             {perks.map((p) =>
-                                                 buildPerkIcon(p, ()=>removePerk(p, index)))}
+                                                buildPerkIcon(p, () => removePerk(p, index)))}
                                         </Box>
                                     )}
                                 </Box>
@@ -323,7 +323,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                         {curatedPerks.map((perks, index) =>
                                             <Box key={index} className={classes.perkColumn}>
                                                 {perks.filter((p) => selectedPerks[index].indexOf(p) === -1).map((p) =>
-                                                        buildPerkIcon(p, ()=>addPerk(p, index)))}
+                                                    buildPerkIcon(p, () => addPerk(p, index)))}
                                             </Box>
                                         )}
                                     </Box>
@@ -332,12 +332,12 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     <Box mr={1}>
                                         <SectionHeader>
                                             Random Perks
-                                    </SectionHeader>
+                                        </SectionHeader>
                                         <Box className={classes.perks}>
                                             {randomPerks.map((perks, index) =>
                                                 <Box key={index} className={classes.perkColumn}>
                                                     {perks.filter((p) => selectedPerks[index].indexOf(p) === -1).map((p) =>
-                                                        buildPerkIcon(p, ()=>addPerk(p, index)))}
+                                                        buildPerkIcon(p, () => addPerk(p, index)))}
                                                 </Box>
                                             )}
                                         </Box>
