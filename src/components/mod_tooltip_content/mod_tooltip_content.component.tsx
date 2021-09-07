@@ -1,7 +1,7 @@
 import { Box, createStyles, makeStyles, Theme, colors } from "@material-ui/core";
 import { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
 import React, { useState, useEffect } from "react";
-import { data } from '../../services';
+import { manifest } from '../../services';
 import { bungieURL } from "../../utils/bungie_url";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -30,7 +30,7 @@ export const ModTooltipContent = (props: {
     let classes = useStyles();
     useEffect(()=>{
         async function load() {
-            let d = await data.loadInventoryItemDefinition(props.hash);
+            let d = manifest.getInventoryItemDefinition(props.hash);
             setDef(d);
         }
         load();

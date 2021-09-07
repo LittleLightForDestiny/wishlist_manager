@@ -8,8 +8,8 @@ import ScrollContainer from 'react-scrollbars-custom';
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeGrid } from "react-window";
 import { WeaponListItem } from "../../components/weapon_list_item/weapon_list_item.component";
+import * as events from "../../events";
 import Wishlist from "../../interfaces/wishlist.interface";
-import db from "../../services/database.service";
 import { getBuilds } from "../../services/wishlistBuild.service";
 import { getWishlist } from "../../services/wishlists.service";
 
@@ -64,9 +64,9 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             flexGrow: 1,
-            minHeight:"100vh",
-            display:"flex",
-            flexDirection:"column"
+            minHeight: "100vh",
+            display: "flex",
+            flexDirection: "column"
         },
         menuButton: {
             marginRight: theme.spacing(2),
@@ -96,6 +96,7 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
             let builds = await getBuilds(parseInt(wishlistId));
             let items: BuildCount[] = _map(countBy(builds, (b) => b.itemHash), (v, k) => ({ itemHash: parseInt(k), count: v }));
             setItems(items);
+            console.log('refresh items');
         }
 
         async function load() {
@@ -110,10 +111,10 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
             refreshItems();
         }
 
-        db.on('changes', onDbChanges);
+        const unsubscribe = events.bus.subscribe(events.wishlists.OnWishlistBuildUpdated, onDbChanges);
 
         return () => {
-            db.on('changes').unsubscribe(onDbChanges);
+            unsubscribe();
         };
     }, [wishlistId]);
 
@@ -126,7 +127,7 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                 <Typography variant="h6" className={classes.title}>
                     {wishlist?.name}
                 </Typography>
-                {isMobile ? 
+                {isMobile ?
                     <IconButton color="inherit" aria-label="menu" component={Link} to={`/wishlist/e/${wishlist?.id}/item/add`}>
                         <FontAwesomeIcon icon={faPlusCircle}></FontAwesomeIcon>
                     </IconButton>
@@ -135,16 +136,16 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                 }
                 <Box p={isMobile ? 0 : 1}></Box>
                 {
-                    isMobile ? 
-                    <IconButton color="inherit" aria-label="menu" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>
-                        <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
-                    </IconButton>
-                    :
-                    <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>Export Wishlist</Button>
+                    isMobile ?
+                        <IconButton color="inherit" aria-label="menu" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>
+                            <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
+                        </IconButton>
+                        :
+                        <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>Export Wishlist</Button>
                 }
             </Toolbar>
         </AppBar>
-        {useMemo(()=><Box flexGrow="1" >
+        {useMemo(() => <Box flexGrow="1" >
             <AutoSizer style={{ width: "100%", height: "100%" }}>
                 {({ height, width }) => {
                     let totalItems = items?.length || 0;
@@ -175,6 +176,6 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                     );
                 }}
             </AutoSizer>
-        </Box>, [items, outerRef, wishlistId, isMobile])}
+        </Box>, [items, wishlistId, isMobile])}
     </Box>
 };

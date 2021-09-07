@@ -1,60 +1,50 @@
 /* eslint-disable */
-import { AppBar, Box, createStyles, CssBaseline, fade, IconButton, InputBase, makeStyles, Modal, Paper, Theme, Toolbar, Typography, Switch, useTheme, useMediaQuery } from "@material-ui/core";
-import { Close as CloseIcon, Search as SearchIcon } from '@material-ui/icons';
-import { DestinyCollectibleDefinition, DestinyPresentationNodeDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
+import { AppBar, Box, createStyles, CssBaseline, alpha, IconButton, InputBase, makeStyles, Paper, Switch, Theme, Toolbar, Typography, useMediaQuery, useTheme } from "@material-ui/core";
+import { Close as CloseIcon, Search as SearchIcon, SentimentSatisfiedRounded } from '@material-ui/icons';
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, RouteChildrenProps } from "react-router-dom";
 import ScrollContainer from 'react-scrollbars-custom';
-import { AmmoTypeSelector } from "../../components/ammo_type_selector/ammo_type_selector.component";
 import { CollectibleList } from "../../components/collectible_list/collectible_list.component";
-import { WeaponTypeSelector } from "../../components/weapon_type_selector/weapon_type_selector.component";
-import * as dataService from "../../services/data.service";
-import useDebounce from "../../hooks/useDebounce.hook";
 import { DefaultModal } from "../../components/default_modal/defaultModal.component";
-
-
-interface ExtendedCollectible extends DestinyCollectibleDefinition {
-    ammoNodeHash: number;
-    typeNodeHash: number;
-}
+import { SeasonSelector } from "../../components/season_selector/season_selector.component";
+import { WeaponTypeSelector } from "../../components/weapon_type_selector/weapon_type_selector.component";
+import useDebounce from "../../hooks/useDebounce.hook";
+import { ExtendedCollectible, getFilterableWeapons } from "../../services/weapons.service";
 
 interface WeaponSearchData {
-    nodes: DestinyPresentationNodeDefinition[];
     collectibles: ExtendedCollectible[];
-    items: { [ids: string]: (DestinyInventoryItemDefinition & { hasRandomPerks?: false }) };
+    types: Set<string>;
+    seasons: Set<number>;
 }
 
 async function loadSearchData(): Promise<WeaponSearchData> {
-    let nodes = await dataService.loadPresentationNodes();
-    let weaponNodes: DestinyPresentationNodeDefinition[] = [];
-    let collectibles: ExtendedCollectible[] = [];
-    let rootNode = nodes["1528930164"];
-    let allCollectibles = await dataService.loadCollectibles();
-    let items = await dataService.loadInventoryItemList();
-    rootNode.children.presentationNodes.forEach((p) => {
-        let ammoNode = nodes[p.presentationNodeHash];
-        weaponNodes.push(ammoNode);
-        ammoNode.children.presentationNodes.forEach((p) => {
-            let typeNode = nodes[p.presentationNodeHash];
-            weaponNodes.push(typeNode);
-            typeNode.children.collectibles.forEach(c => {
-                let collectible = allCollectibles[c.collectibleHash];
-                collectibles.push({
-                    ...collectible,
-                    ammoNodeHash: ammoNode.hash,
-                    typeNodeHash: typeNode.hash,
-                });
-            });
-        });
+    let collectibles = await getFilterableWeapons();
+    let types = new Set<string>();
+    let seasons = new Set<number>();
+    collectibles.forEach((c) => {
+        if (c.item?.itemTypeDisplayName) {
+            types.add(c.item.itemTypeDisplayName);
+        }
+        if (c.season) {
+            seasons.add(c.season);
+        }
+
+    });
+    collectibles = collectibles.sort((a, b) => {
+        let diff = b.season - a.season;
+        if (diff != 0) return diff;
+        diff = a.item.itemTypeAndTierDisplayName.localeCompare(b.item.itemTypeAndTierDisplayName);
+        if (diff != 0) return diff;
+        return a.displayProperties.name > b.displayProperties.name ? 1 : -1;
     });
     return {
-        nodes: weaponNodes,
-        collectibles: collectibles,
-        items: items
+        collectibles,
+        types,
+        seasons
     }
 }
 
-const drawerWidth = 240;
+const drawerWidth = 340;
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         drawer: {
@@ -71,9 +61,9 @@ const useStyles = makeStyles((theme: Theme) =>
         search: {
             position: 'relative',
             borderRadius: theme.shape.borderRadius,
-            backgroundColor: fade(theme.palette.common.white, 0.15),
+            backgroundColor: alpha(theme.palette.common.white, 0.15),
             '&:hover': {
-                backgroundColor: fade(theme.palette.common.white, 0.25),
+                backgroundColor: alpha(theme.palette.common.white, 0.25),
             },
             marginRight: theme.spacing(2),
             marginLeft: 0,
@@ -125,49 +115,34 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
     const params = match!.params as any;
     const wishlistId = params.wishlistId;
     const classes = useStyles();
-    const [nodes, setNodes] = useState<DestinyPresentationNodeDefinition[]>([]);
-    const [enabledNodes, setEnabledNodes] = useState<Set<number>>(new Set());
+    const [selectedWeaponType, setSelectedType] = useState<string>();
+    const [selectedSeason, setSelectedSeason] = useState<number>(-1);
     const [onlyRandomRolls, setOnlyRandomRolls] = useState<boolean>(false);
     const [textSearch, setTextSearch] = useState<string>("");
     const debouncedSearchTerm = useDebounce(textSearch, 500);
-    const [collectibles, setCollectibles] = useState<ExtendedCollectible[]>([]);
     const [data, setData] = useState<WeaponSearchData>();
     const [filteredCollectibles, setFilteredCollectibles] = useState<ExtendedCollectible[]>([]);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
 
-    const setPresentationNodeState = (hash: number, on: boolean) => {
-        let nodeHashes = new Set(enabledNodes);
-        if (on) {
-            nodeHashes.add(hash);
-        } else {
-            nodeHashes.delete(hash);
-        }
-        setEnabledNodes(nodeHashes);
-    }
-
     const filterCollectibles = () => {
-        setFilteredCollectibles(collectibles.filter((c) => {
-            let nodeMatch = enabledNodes.has(c.ammoNodeHash) && enabledNodes.has(c.typeNodeHash);
-            let textMatch = c.displayProperties.name.toLowerCase().indexOf(textSearch) > -1;
-            let item = data!.items[c.itemHash];
-            let randomMatch = !onlyRandomRolls || item.hasRandomPerks;
-            return nodeMatch && textMatch && randomMatch;
-        }));
+        setFilteredCollectibles(data?.collectibles?.filter((c) => {
+            let textMatch = c.displayProperties.name.toLowerCase().indexOf(textSearch.toLowerCase()) > -1;
+            let typeMatch = !selectedWeaponType || c.item?.itemTypeDisplayName.toLowerCase() === selectedWeaponType.toLowerCase();
+            let seasonMatch = selectedSeason < 0 || c.season === selectedSeason;
+            return textMatch && typeMatch && seasonMatch;
+        }) ?? []);
     }
 
     useEffect(() => {
         filterCollectibles();
-    }, [debouncedSearchTerm, enabledNodes, onlyRandomRolls]);
+    }, [debouncedSearchTerm, selectedWeaponType, onlyRandomRolls]);
 
     useEffect(() => {
         async function load() {
             let data = await loadSearchData();
             setData(data);
-            setNodes(data.nodes);
-            setEnabledNodes(new Set(data.nodes.map((n) => n.hash)));
-            setCollectibles(data.collectibles);
             setFilteredCollectibles(data.collectibles);
         }
         load();
@@ -176,23 +151,23 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
         <CssBaseline />
         {useMemo(() => {
             return isMobile ? <Box></Box> : (<Paper square elevation={5} className={classes.drawer}>
-                <AmmoTypeSelector presentationNodes={nodes} enabledHashes={enabledNodes} filterToggle={setPresentationNodeState}></AmmoTypeSelector>
                 <Box pt={1}></Box>
                 <ScrollContainer className={classes.weaponTypeList} disableTracksWidthCompensation={true} >
-                    <WeaponTypeSelector className={classes.weaponTypes} presentationNodes={nodes} enabledHashes={enabledNodes} filterToggle={setPresentationNodeState}></WeaponTypeSelector>
+                    <WeaponTypeSelector className={classes.weaponTypes} weaponTypes={data?.types} selectedType={selectedWeaponType} onSelectType={setSelectedType} ></WeaponTypeSelector>
+                    <SeasonSelector className={classes.weaponTypes} seasons={data?.seasons} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} ></SeasonSelector>
                 </ScrollContainer>
                 <Box p={1} pb={0} display="flex" justifyContent="space-between" alignItems="center" height={30}>
                     <div>Only random rolls</div>
                     <Switch value={onlyRandomRolls} onChange={(_, value) => setOnlyRandomRolls(value)}></Switch>
                 </Box>
             </Paper>)
-        }, [enabledNodes, onlyRandomRolls, isMobile])}
+        }, [isMobile, data, selectedWeaponType, selectedSeason])}
         <Box width="100%" display="flex" flexDirection="column">
             <AppBar position="static">
                 <Toolbar className={classes.toolbar}>
                     {isMobile ? <Box></Box> : <Typography variant="h6" noWrap>
                         Add Weapon
-                        </Typography>}
+                    </Typography>}
                     <Box className={classes.search}>
                         <Box className={classes.searchIcon}>
                             <SearchIcon />

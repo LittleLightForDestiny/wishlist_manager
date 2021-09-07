@@ -13,17 +13,17 @@ export enum MediaType {
     Link = "link"
 }
 
-export type WishlistData = {type?:WishlistType, media?:MediaType, data?:File|string};
+export type WishlistData = { type?: WishlistType, media?: MediaType, data?: File | string };
 
-export type OnWishlistImport = (data:WishlistData) => void;
+export type OnWishlistImport = (data: WishlistData) => void;
 
 export const ImportWishlistForm = (props: {
-    data?:WishlistData,
+    data?: WishlistData,
     onImport: OnWishlistImport
 }) => {
-    const [wishlistType, setWishlistType] = useState<WishlistType | undefined>(props.data?.type);
-    const [mediaType, setMediaType] = useState<MediaType | undefined>(props.data?.media);
-    const [wishlistURL, setWishlistURL] = useState<string | undefined>(typeof(props.data?.data) == "string" ? props.data?.data : undefined);
+    const [wishlistType, setWishlistType] = useState<WishlistType | null>(props.data?.type ?? null);
+    const [mediaType, setMediaType] = useState<MediaType | null>(props.data?.media ?? null);
+    const [wishlistURL, setWishlistURL] = useState<string>(typeof (props.data?.data) === "string" ? props.data?.data : "");
     const [wishlistFile, setWishlistFile] = useState<File>();
 
     const getMediaField = () => {
@@ -53,7 +53,7 @@ export const ImportWishlistForm = (props: {
                             <label htmlFor="contained-button-file">
                                 <Button variant="contained" color="primary" component="span">
                                     Upload
-                        </Button>
+                                </Button>
                             </label>
                             <Box display="inline" pl={1}>{wishlistFile?.name}</Box>
                         </Box>
@@ -64,8 +64,8 @@ export const ImportWishlistForm = (props: {
     };
 
     const importButtonEnabled = () => {
-        if(!wishlistType) return false;
-        if(!mediaType) return false;
+        if (!wishlistType) return false;
+        if (!mediaType) return false;
 
         switch (mediaType) {
             case MediaType.Link:
@@ -118,21 +118,21 @@ export const ImportWishlistForm = (props: {
                 {getMediaField()}
             </Box>
             <Box pt={0} p={2} display="flex" justifyContent="flex-end">
-                <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={()=>{
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
                         let data = getData();
-                        if(!wishlistType || !mediaType || !data) return;
+                        if (!wishlistType || !mediaType || !data) return;
                         props.onImport({
-                            type:wishlistType,
-                            media:mediaType,
-                            data:data
+                            type: wishlistType,
+                            media: mediaType,
+                            data: data
                         });
                     }
-                }
-                component="span" 
-                disabled={!importButtonEnabled()}>
+                    }
+                    component="span"
+                    disabled={!importButtonEnabled()}>
                     Import
                 </Button>
             </Box>

@@ -14,7 +14,4 @@ db.version(1).stores({
   wishlistBuilds: 'id++,tags,itemHash,wishlistId,[wishlistId+itemHash]',
 });
 
-
-
-
 export default db;

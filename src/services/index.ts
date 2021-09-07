@@ -1,7 +1,9 @@
-  
+
 import * as wishlists from './wishlists.service';
-import * as data from './data.service';
+import * as manifest from './manifest.service';
+import * as weapons from './weapons.service';
 export {
   wishlists,
-  data
+  manifest,
+  weapons
 };
