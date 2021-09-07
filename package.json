@@ -51,6 +51,7 @@
     "reselect": "^4.0.0",
     "rxjs": "^6.6.7",
     "simplebar-react": "^2.3.5",
+    "ts-bus": "^2.3.1",
     "typesafe-actions": "^5.1.0",
     "typescript": "^3.9.10",
     "use-constant": "^1.1.0"

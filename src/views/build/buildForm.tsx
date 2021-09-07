@@ -76,7 +76,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
         })
     };
     async function save() {
-        await saveBuild({
+        saveBuild({
             ...build,
             plugs: selectedPerks,
         });

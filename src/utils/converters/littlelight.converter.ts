@@ -49,7 +49,7 @@ const exportTags = (tags: WishlistTag[]): string[] => {
         [WishlistTag.PvP]: 'PVP',
         [WishlistTag.Curated]: 'Bungie',
         [WishlistTag.Trash]: 'Trash',
-        [WishlistTag.Mouse]: 'mouse',
+        [WishlistTag.Mouse]: 'Mouse',
         [WishlistTag.Controller]: 'Controller',
     };
     return tags.map((t: string) => {
