@@ -58,7 +58,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build release",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "download_db": "ts-node --project=tsconfig.utils.json utils/download_manifest"
@@ -83,5 +83,8 @@
     "@types/fs-extra": "^8.1.2",
     "fs-extra": "^8.1.0",
     "ts-node": "^8.10.2"
+  },
+  "resolutions": {
+    "react-scripts/eslint-webpack-plugin": "2.3.0"
   }
 }
