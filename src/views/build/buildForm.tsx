@@ -53,6 +53,17 @@ const ScrollableWhen = ({ children, condition }: any) => {
     return children;
 };
 
+const organizePlugs = (buildPlugs: number[][], randomPlugs: number[][], curatedPlugs: number[][]) => {
+    let result: number[][] = randomPlugs.map((random, index) => {
+        const curated = curatedPlugs[index];
+        const mixed = [...curated, ...random];
+        const fromBuild = buildPlugs.filter((p) => p.every((p) => mixed.includes(p)))[0];
+        if (fromBuild) return fromBuild;
+        return [];
+    });
+    return result;
+}
+
 export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistBuild, def: DestinyInventoryItemDefinition }) => {
     const classes = useStyles();
     const blankBuild: WishlistBuild = createBlankBuild(props.wishlistId, props.def.hash);
@@ -156,33 +167,9 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
             setCuratedPerks(curatedPerks);
             setRandomPerks(randomPerks);
 
-            let buildPlugs: number[][] | null = props.build?.plugs ? [...props.build.plugs] : null;
-            setSelectedPerks(randomPerks.map((random, index) => {
-                if (!buildPlugs) return [];
-                let curated = curatedPerks[index];
-                if (buildPlugs[index]) {
-                    let containsPlugs = buildPlugs[index].some((p) => {
-                        return random.indexOf(p) > -1 || curated.indexOf(p) > -1;
-                    });
-                    if (containsPlugs) {
-                        let result = buildPlugs[index];
-                        buildPlugs[index] = [];
-                        return result;
-                    }
-                }
-                let sortedPlugs = [...buildPlugs].sort((a, b) => {
-                    let countA = a.filter((p) => random.indexOf(p) > -1 || curated.indexOf(p) > -1).length;
-                    let countB = b.filter((p) => random.indexOf(p) > -1 || curated.indexOf(p) > -1).length;
-                    return countB - countA;
-                });
-
-                if (sortedPlugs[0] && sortedPlugs[0].length > 0) {
-                    let originalIndex = buildPlugs.indexOf(sortedPlugs[0]);
-                    buildPlugs[originalIndex] = [];
-                    return sortedPlugs[0];
-                }
-                return [];
-            }));
+            let buildPlugs: number[][] | null = props.build?.plugs ? [...props.build.plugs] : [];
+            let orderedPlugs = organizePlugs(buildPlugs, randomPerks, curatedPerks);
+            setSelectedPerks(orderedPlugs);
             setLoaded(true);
         }
         if (props.build) {
