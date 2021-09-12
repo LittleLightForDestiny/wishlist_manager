@@ -122,6 +122,12 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                     curated.push(entry.singleInitialItemHash);
                 }
 
+                entry.reusablePlugItems?.forEach((p) => {
+                    if (curated.indexOf(p.plugItemHash) === -1) {
+                        curated.push(p.plugItemHash);
+                    }
+                });
+
                 if (reusablePlugSet) {
                     let skip = reusablePlugSet.reusablePlugItems.some((p) => p.plugItemHash === 2285418970);
                     if (!skip) {
