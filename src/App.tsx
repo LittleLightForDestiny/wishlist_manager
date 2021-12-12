@@ -4,6 +4,7 @@ import { HashRouter as Router, Route } from 'react-router-dom';
 import 'simplebar/dist/simplebar.min.css';
 import './App.scss';
 import { loadManifest } from './services/manifest.service';
+import { PackageIndex } from './views/package';
 import { Welcome } from './views/welcome/welcome.view';
 import WishlistsIndex from './views/wishlist';
 
@@ -40,6 +41,7 @@ function App() {
         <Router>
           <Route exact path="/" component={Welcome}></Route>
           <Route path="/wishlist" component={WishlistsIndex}></Route>
+          <Route path="/package" component={PackageIndex}></Route>
         </Router>
       }
     </ThemeProvider>

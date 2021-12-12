@@ -54,8 +54,11 @@ function cartesianProduct<T>(...allEntries: T[][]): T[][] {
 const compileBuildLines = async (build: WishlistBuild): Promise<string> => {
     let lines = "";
     lines += await getNameLine(build);
-    if (build.description) {
-        lines += `//notes: ${build.description}`;
+    if (build.description || build.tags?.length) {
+        lines += `//notes:`;
+        if(build.description){
+            lines+= ` ${build.description}`;
+        }
         if (build.tags?.length && lines.indexOf('tags:') < 0) {
             lines += ` tags:${exportTags(build.tags).join(',')}`;
         }

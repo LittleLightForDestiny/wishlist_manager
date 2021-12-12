@@ -1,6 +1,6 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AppBar, Box, Button, Card, createStyles, FormControlLabel, IconButton, makeStyles, Radio, RadioGroup, Theme, Toolbar, Typography, Paper, CircularProgress } from "@material-ui/core";
+import { AppBar, Box, Button, Card, createStyles, FormControlLabel, IconButton, makeStyles, Radio, RadioGroup, Theme, Toolbar, Typography, Paper, CircularProgress, Checkbox } from "@material-ui/core";
 import React, { useState } from "react";
 import { DefaultModal } from "../../components/default_modal/defaultModal.component";
 import { WishlistType } from "./import/import_form";
@@ -41,6 +41,8 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
     let { wishlistId } = match!.params as any;
     const [wishlistType, setWishlistType] = useState<WishlistType | null>(null);
     const [working, setWorking] = useState<boolean>(false);
+    const [omitDescriptions, setOmitDescriptions] = useState<boolean>(false);
+    const [prettyPrint, setPrettyPrint] = useState<boolean>(false);
     const classes = useStyles();
 
     function exportButtonEnabled() {
@@ -59,7 +61,10 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
         let data: Blob | null = null;
         switch (wishlistType) {
             case WishlistType.LittleLight:
-                data = await exportLittleLight(parseInt(wishlistId));
+                data = await exportLittleLight(parseInt(wishlistId), {
+                    JSONPrettyPrint:prettyPrint,
+                    omitDescriptions:omitDescriptions
+                });
                 console.log(wishlist);
                 filename = (wishlist?.name || "wishlist").replace(/.(json|txt)$/, "");
                 extension = 'json';
@@ -110,7 +115,7 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
                         <Box m={1} mb={.5} mt={0}>
                             <Typography>Wishlist Type</Typography>
                         </Box>
-                        <Card variant="outlined">
+                        <Card variant="outlined" style={{ marginBottom: "16px" }}>
                             <RadioGroup aria-label="wishlist type" name="wishlist type"
                                 value={wishlistType}
                                 style={{ display: "flex", flexDirection: "row", padding: "8px 16px" }}
@@ -121,6 +126,15 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
                                 <FormControlLabel value={WishlistType.XLS} control={<Radio />} label="XLS" />
                             </RadioGroup>
                         </Card>
+                        {
+                            wishlistType === WishlistType.LittleLight ?
+                                <Card variant="outlined">
+                                    <Box px={2} py={1}>
+                                        <FormControlLabel value={omitDescriptions} control={<Checkbox />} label="Omit descriptions" onChange={(_, value) => setOmitDescriptions(value)} />
+                                        <FormControlLabel value={prettyPrint} control={<Checkbox />} label="JSON pretty print" onChange={(_, value) => setPrettyPrint(value)} />
+                                    </Box>
+                                </Card> : null
+                        }
                         <Box pt={2} display="flex" justifyContent="flex-end">
                             <Button
                                 variant="contained"

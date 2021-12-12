@@ -72,12 +72,17 @@ export const importLittleLight = (content: LittleLightWishlistData): { wishlist:
     };
 }
 
-export const exportLittleLight = async (wishlistId: number): Promise<Blob> => {
+type ExportLittleLightOptions = {
+    omitDescriptions: boolean;
+    JSONPrettyPrint: boolean;
+}
+
+export const exportLittleLight = async (wishlistId: number, options?: ExportLittleLightOptions): Promise<Blob> => {
     let wishlist = await getWishlist(wishlistId);
     let builds = await getBuilds(wishlistId);
     let dataBuilds: LittleLightWishlistBuild[] = builds.map((b): LittleLightWishlistBuild => {
         return {
-            description: b.description || "",
+            description: !options?.omitDescriptions ? b.description || "" : "",
             hash: b.itemHash!,
             name: b.name || "",
             plugs: b.plugs?.filter((p) => p.length) || [],
@@ -87,8 +92,32 @@ export const exportLittleLight = async (wishlistId: number): Promise<Blob> => {
     let json = JSON.stringify({
         description: wishlist?.description || "",
         name: wishlist?.name || "",
-        data: dataBuilds
-    });
+        data: dataBuilds,
+    }, null, options?.JSONPrettyPrint ? 4 : 0);
+    var blob = new Blob([json], { type: "application/json" });
+    return blob;
+}
+
+export const exportPackageAsLittleLightWishlist = async (name: String, description: String, wishlistIds: number[], options?: ExportLittleLightOptions): Promise<Blob> => {
+    let dataBuilds: LittleLightWishlistBuild[] = [];
+    for (let wishlistId of wishlistIds) {
+        let builds = await getBuilds(wishlistId);
+        dataBuilds = dataBuilds.concat(builds.map((b): LittleLightWishlistBuild => {
+            return {
+                description: !options?.omitDescriptions ? b.description || "" : "",
+                hash: b.itemHash!,
+                name: b.name || "",
+                plugs: b.plugs?.filter((p) => p.length) || [],
+                tags: exportTags(b.tags || [])
+            };
+        }));
+    }
+
+    let json = JSON.stringify({
+        description: description || "",
+        name: name || "",
+        data: dataBuilds,
+    }, null, options?.JSONPrettyPrint ? 4 : 0);
     var blob = new Blob([json], { type: "application/json" });
     return blob;
 }

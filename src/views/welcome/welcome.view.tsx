@@ -24,15 +24,24 @@ export const Welcome = () => {
                 <Button size="large" variant="contained" color="primary" fullWidth component={RouterLink} to="/wishlist/new">
                     <Typography>Create new wishlist</Typography>
                 </Button>
-                <Box mb={1}></Box>
+                <Box mb={1} />
                 <Button size="large" variant="contained" color="primary" fullWidth component={RouterLink} to="/wishlist/import">
                     <Typography>Import wishlist</Typography>
                 </Button>
-                <Box mb={1}></Box>
+                <Box mb={1} />
                 {
-                    wishlistsAvailable ? <Button size="large" variant="contained" color="primary" fullWidth component={RouterLink} to="/wishlist/load">
-                        <Typography>Load wishlist</Typography>
-                    </Button> : <Box />
+                    wishlistsAvailable ? <>
+                        <Button size="large" variant="contained" color="primary" fullWidth component={RouterLink} to="/wishlist/load">
+                            <Typography>Load wishlist</Typography>
+                        </Button><Box mb={1} />
+                    </> : <Box />
+                }
+                {
+                    wishlistsAvailable ? <>
+                        <Button size="large" variant="contained" color="primary" fullWidth component={RouterLink} to="/package">
+                            <Typography>Export Package</Typography>
+                        </Button>
+                    </> : <Box />
                 }
             </Box>
         </Container>);
