@@ -137,7 +137,7 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
 
     useEffect(() => {
         filterCollectibles();
-    }, [debouncedSearchTerm, selectedWeaponType, onlyRandomRolls]);
+    }, [debouncedSearchTerm, selectedWeaponType, onlyRandomRolls, selectedSeason]);
 
     useEffect(() => {
         async function load() {

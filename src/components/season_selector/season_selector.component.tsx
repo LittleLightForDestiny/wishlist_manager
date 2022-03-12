@@ -67,7 +67,7 @@ export const SeasonSelector = (props: SeasonSelectorProps) => {
         const selected = props.selectedSeason === season;
         let buttonClasses = [classes.seasonButton, classes.roundButton];
         if (selected) buttonClasses.push(classes.selectedButton);
-        return <div className={classes.buttonContainer}>
+        return <div key={`season-${season}`} className={classes.buttonContainer}>
             <ButtonBase
                 className={buttonClasses.join(" ")}
                 onClick={() => props.onSelectSeason(season)}>
@@ -84,7 +84,7 @@ export const SeasonSelector = (props: SeasonSelectorProps) => {
             {buildMainButton(-1, "All")}
             <Box p={1}></Box>
             <div className={classes.seasonGrid}>
-                {seasons ? [...seasons].map((type) => buildSeasonButton(type)) : null}
+                {seasons ? [...seasons].sort((a,b)=>a-b).map((type) => buildSeasonButton(type)) : null}
             </div>
         </Box>
     );

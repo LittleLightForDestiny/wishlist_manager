@@ -11,6 +11,7 @@ import { SectionHeader } from "../../components/section_header/section_header.co
 import { WishlistBuild, WishlistTag } from "../../interfaces/wishlist.interface";
 import { getPlugSetDefinition } from "../../services/manifest.service";
 import { saveBuild } from "../../services/wishlistBuild.service";
+import { manifest } from '../../services';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -30,6 +31,12 @@ const useStyles = makeStyles((theme: Theme) =>
         perk: {
             width: 48,
             height: 48
+        },
+        enhancedPerk: {
+            width: 48,
+            height: 48,
+            background: "linear-gradient(0deg, #FFFF0066, transparent)",
+            borderRadius: "50%",
         },
     }),
 );
@@ -214,9 +221,11 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
     }
 
     function buildPerkIcon(p: number, onClick: () => void) {
+        const def = manifest.getInventoryItemDefinition(p);
+        const isEnhanced = def.inventory.tierType === 3;
         return <Tooltip key={p} trigger="mouseenter" html={<ModTooltipContent hash={p}></ModTooltipContent>} >
             <Box onClick={(_) => onClick()}>
-                <InventoryItemImage className={classes.perk} hash={p}></InventoryItemImage>
+                <InventoryItemImage className={isEnhanced ? classes.enhancedPerk : classes.perk} hash={p}></InventoryItemImage>
             </Box>
         </Tooltip>;
     }
