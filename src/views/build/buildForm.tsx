@@ -1,5 +1,5 @@
 
-import { Box, Button, Card, Checkbox, createStyles, Divider, FormControlLabel, Grid, makeStyles, TextField, Theme, useMediaQuery, useTheme } from "@material-ui/core";
+import { Box, Button, Card, Checkbox, Divider, FormControlLabel, Grid, TextField, useMediaQuery, useTheme } from "@mui/material";
 import { DestinyInventoryItemDefinition, DestinyItemSocketCategoryDefinition } from "bungie-api-ts/destiny2/interfaces";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import ScrollContainer from "react-scrollbars-custom";
@@ -9,37 +9,35 @@ import { InventoryItemImage } from "../../components/inventory_item_image/invent
 import { ModTooltipContent } from "../../components/mod_tooltip_content/mod_tooltip_content.component";
 import { SectionHeader } from "../../components/section_header/section_header.component";
 import { WishlistBuild, WishlistTag } from "../../interfaces/wishlist.interface";
+import { manifest } from '../../services';
 import { getPlugSetDefinition } from "../../services/manifest.service";
 import { saveBuild } from "../../services/wishlistBuild.service";
-import { manifest } from '../../services';
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        perks: {
-            display: "flex",
-            flexDirection: "row",
-        },
-        perkColumn: {
-            display: "flex",
-            flexDirection: "column",
-            width: 48,
-        },
-        tagCheckBox: {
-            width: "50%",
-            marginRight: 0,
-        },
-        perk: {
-            width: 48,
-            height: 48
-        },
-        enhancedPerk: {
-            width: 48,
-            height: 48,
-            background: "linear-gradient(0deg, #FFFF0066, transparent)",
-            borderRadius: "50%",
-        },
-    }),
-);
+const useStyles = {
+    perks: {
+        display: "flex",
+        flexDirection: "row",
+    },
+    perkColumn: {
+        display: "flex",
+        flexDirection: "column",
+        width: 48,
+    },
+    tagCheckBox: {
+        width: "50%",
+        marginRight: 0,
+    },
+    perk: {
+        width: 48,
+        height: 48
+    },
+    enhancedPerk: {
+        width: 48,
+        height: 48,
+        background: "linear-gradient(0deg, #FFFF0066, transparent)",
+        borderRadius: "50%",
+    },
+}
 
 function createBlankBuild(wishlistId: number, itemHash: number): WishlistBuild {
     return {
@@ -72,7 +70,7 @@ const organizePlugs = (buildPlugs: number[][], randomPlugs: number[][], curatedP
 }
 
 export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistBuild, def: DestinyInventoryItemDefinition }) => {
-    const classes = useStyles();
+    const classes = useStyles;
     const blankBuild: WishlistBuild = createBlankBuild(props.wishlistId, props.def.hash);
 
     const [curatedPerks, setCuratedPerks] = useState<number[][]>([]);
@@ -224,8 +222,9 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
         const def = manifest.getInventoryItemDefinition(p);
         const isEnhanced = def.inventory.tierType === 3;
         return <Tooltip key={p} trigger="mouseenter" html={<ModTooltipContent hash={p}></ModTooltipContent>} >
-            <Box onClick={(_) => onClick()}>
-                <InventoryItemImage className={isEnhanced ? classes.enhancedPerk : classes.perk} hash={p}></InventoryItemImage>
+            <Box onClick={(_) => onClick()} 
+            sx={isEnhanced ? classes.enhancedPerk : classes.perk}>
+                <InventoryItemImage  hash={p}></InventoryItemImage>
             </Box>
         </Tooltip>;
     }
@@ -249,7 +248,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                         <Card variant="outlined">
                             <Box p={1} py={0} display="flex" flexWrap="wrap">
                                 <FormControlLabel
-                                    className={classes.tagCheckBox}
+                                    sx={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.GodPvE)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.GodPvE, value)}
@@ -257,7 +256,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     label="GodPvE"
                                 />
                                 <FormControlLabel
-                                    className={classes.tagCheckBox}
+                                    sx={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.PvE)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.PvE, value)}
@@ -265,7 +264,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     label="PvE"
                                 />
                                 <FormControlLabel
-                                    className={classes.tagCheckBox}
+                                    sx={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.GodPvP)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.GodPvP, value)}
@@ -273,7 +272,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     label="GodPvP"
                                 />
                                 <FormControlLabel
-                                    className={classes.tagCheckBox}
+                                    sx={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.PvP)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.PvP, value)}
@@ -281,7 +280,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     label="PvP"
                                 />
                                 <FormControlLabel
-                                    className={classes.tagCheckBox}
+                                    sx={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.Mouse)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.Mouse, value)}
@@ -289,7 +288,7 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     label="Mouse"
                                 />
                                 <FormControlLabel
-                                    className={classes.tagCheckBox}
+                                    sx={classes.tagCheckBox}
                                     control={<Checkbox
                                         checked={containsTag(WishlistTag.Controller)}
                                         onChange={(_, value) => handleTagChange(WishlistTag.Controller, value)}
@@ -307,9 +306,9 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                 <SectionHeader>
                                     Selected Perks
                                 </SectionHeader>
-                                <Box className={classes.perks}>
+                                <Box sx={classes.perks}>
                                     {selectedPerks.map((perks, index) =>
-                                        <Box key={index} className={classes.perkColumn}>
+                                        <Box key={index} sx={classes.perkColumn}>
                                             {perks.map((p) =>
                                                 buildPerkIcon(p, () => removePerk(p, index)))}
                                         </Box>
@@ -321,9 +320,9 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                     <SectionHeader>
                                         Curated Perks
                                     </SectionHeader>
-                                    <Box className={classes.perks}>
+                                    <Box sx={classes.perks}>
                                         {curatedPerks.map((perks, index) =>
-                                            <Box key={index} className={classes.perkColumn}>
+                                            <Box key={index} sx={classes.perkColumn}>
                                                 {perks.filter((p) => selectedPerks[index].indexOf(p) === -1).map((p) =>
                                                     buildPerkIcon(p, () => addPerk(p, index)))}
                                             </Box>
@@ -335,9 +334,9 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
                                         <SectionHeader>
                                             Random Perks
                                         </SectionHeader>
-                                        <Box className={classes.perks}>
+                                        <Box sx={classes.perks}>
                                             {randomPerks.map((perks, index) =>
-                                                <Box key={index} className={classes.perkColumn}>
+                                                <Box key={index} sx={classes.perkColumn}>
                                                     {perks.filter((p) => selectedPerks[index].indexOf(p) === -1).map((p) =>
                                                         buildPerkIcon(p, () => addPerk(p, index)))}
                                                 </Box>

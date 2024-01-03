@@ -1,13 +1,13 @@
-import { Box, useTheme, useMediaQuery } from "@material-ui/core";
-import { DestinyCollectibleDefinition } from "bungie-api-ts/destiny2/interfaces";
+import { Box, useTheme, useMediaQuery } from "@mui/material";
 import React from "react";
 import RSC from 'react-scrollbars-custom';
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeGrid } from 'react-window';
 import { WeaponListItem } from "../weapon_list_item/weapon_list_item.component";
+import { ExtendedCollectible } from "../../services/weapons.service";
 
 export interface CollectibleListProps {
-    collectibles: DestinyCollectibleDefinition[];
+    collectibles: ExtendedCollectible[];
     wishlistId: number;
 }
 
@@ -59,11 +59,11 @@ export const CollectibleList = (props: CollectibleListProps) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
-    const buildItem = (collectible: DestinyCollectibleDefinition) => {
+    const buildItem = (collectible: ExtendedCollectible) => {
         
         return (
             <Box style={{ padding: "8px" }}>
-                <WeaponListItem itemHash={collectible.itemHash} wishlistId={props.wishlistId}></WeaponListItem>
+                <WeaponListItem definition={collectible} itemHash={collectible?.hash} wishlistId={props.wishlistId}></WeaponListItem>
             </Box>);
     };
 

@@ -1,4 +1,4 @@
-import { Box, CircularProgress, colors, createTheme, ThemeProvider } from '@material-ui/core';
+import { Box, CircularProgress, colors, createTheme, ThemeProvider } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
 import 'simplebar/dist/simplebar.min.css';
@@ -15,7 +15,6 @@ const theme = createTheme({
   palette: {
     primary: colors.blueGrey,
     secondary: colors.lightBlue,
-    type: "dark",
   },
 });
 

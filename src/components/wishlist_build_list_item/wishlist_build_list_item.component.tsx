@@ -1,34 +1,32 @@
-import { Box, Button, Card, CardActions, colors, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { faCopy, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Box, Button, Card, CardActions, colors } from "@mui/material";
 import React from "react";
 import { WishlistBuild } from "../../interfaces/wishlist.interface";
 import { InventoryItemImage } from "../inventory_item_image/inventory_item_image.component";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faCopy, faEdit } from "@fortawesome/free-solid-svg-icons";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        buildTagPill: {
-            padding: "0px 4px",
-            borderRadius: 4,
-        },
-        tagPvE: {
-            backgroundColor: colors.blue[600],
-        },
-        tagPvP: {
-            backgroundColor: colors.red[600],
-        },
-        tagGod: {
-            border: `1px solid ${colors.amber[600]}`
-        }
-    }),
-);
+const useStyles = {
+    buildTagPill: {
+        padding: "0px 4px",
+        borderRadius: 4,
+    },
+    tagPvE: {
+        backgroundColor: colors.blue[600],
+    },
+    tagPvP: {
+        backgroundColor: colors.red[600],
+    },
+    tagGod: {
+        border: `1px solid ${colors.amber[600]}`
+    }
+}
 
-export const WishlistBuildListItem = (props: { build: WishlistBuild , selected?:boolean, onEditClick?:()=>void, onCopyClick?:()=>void, onDeleteClick?:()=>void}) => {
+export const WishlistBuildListItem = (props: { build: WishlistBuild, selected?: boolean, onEditClick?: () => void, onCopyClick?: () => void, onDeleteClick?: () => void }) => {
     const { build } = props;
-    const classes = useStyles();
+    const classes = useStyles;
     return (
         <Card variant="outlined" style={{
-            backgroundColor:props.selected ? colors.blueGrey[800] : "transparent"
+            backgroundColor: props.selected ? colors.blueGrey[800] : "transparent"
         }} key={build.id}>
             <Box p={1} pb={0.5} display="flex" width="100%" justifyContent="space-between">
                 <Box>
@@ -62,21 +60,21 @@ export const WishlistBuildListItem = (props: { build: WishlistBuild , selected?:
                 })}
             </Box>
             <CardActions style={{ justifyContent: "flex-end" }}>
-                <Button size="small" variant="outlined" onClick={()=>{
-                    if(props.onCopyClick) props.onCopyClick();
+                <Button size="small" variant="outlined" onClick={() => {
+                    if (props.onCopyClick) props.onCopyClick();
                 }} startIcon={<FontAwesomeIcon icon={faCopy} fontSize="5px" />}>
                     Copy
                 </Button>
-                <Button size="small" variant="outlined" onClick={()=>{
-                    if(props.onEditClick) props.onEditClick();
+                <Button size="small" variant="outlined" onClick={() => {
+                    if (props.onEditClick) props.onEditClick();
                 }} startIcon={<FontAwesomeIcon icon={faEdit} />}>
                     Edit
                 </Button>
-                <Button size="small" variant="outlined" 
-                onClick={()=>{
-                    if(props.onDeleteClick) props.onDeleteClick();
-                }}
-                startIcon={<FontAwesomeIcon icon={faTrash} />}>
+                <Button size="small" variant="outlined"
+                    onClick={() => {
+                        if (props.onDeleteClick) props.onDeleteClick();
+                    }}
+                    startIcon={<FontAwesomeIcon icon={faTrash} />}>
                     Delete
                 </Button>
             </CardActions>

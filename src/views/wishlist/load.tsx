@@ -1,29 +1,28 @@
-import { Box, Button, Container, Card, CardActionArea, Typography, CardActions, makeStyles, Theme, createStyles, AppBar, Toolbar, Paper, IconButton, useTheme, useMediaQuery } from "@material-ui/core";
+import { AppBar, Box, Button, Card, CardActionArea, CardActions, Container, IconButton, Paper, Toolbar, Typography, useMediaQuery, useTheme } from "@mui/material";
 
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
+import { RouteChildrenProps } from "react-router-dom";
 import Wishlist from "../../interfaces/wishlist.interface";
 import * as wishlistService from '../../services/wishlists.service';
-import { RouteChildrenProps } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = {
         root: {
             display: 'flex',
             flexDirection: "column",
             justifyContent: "center",
-            marginLeft:theme.spacing(-2),
-            marginRight:theme.spacing(-2),
+            marginLeft:-2,
+            marginRight:-2,
             // minHeight: '100vh',
         },
         menuButton: {
-            marginRight: theme.spacing(2),
+            marginRight: 2,
         },
         card: {
             display: 'flex',
             justifyContent:"space-between",
-            marginBottom: theme.spacing(1),
+            marginBottom: 1,
         },
         cardActionArea:{
             flexShrink:1,
@@ -31,18 +30,17 @@ const useStyles = makeStyles((theme: Theme) =>
             textOverflow:"ellipsis"
         },
         content: {
-            padding: theme.spacing(1),
+            padding: 1,
             paddingBottom: 0,
-            background: theme.palette.background.default,
+            background: 'background.default',
         }
-    }),
-);
+    }
 
 export const LoadWishlist = ({ history }: RouteChildrenProps) => {
     const [wishlists, setWishlists] = useState<Wishlist[]>();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
-    const classes = useStyles();
+    const classes = useStyles;
     async function load() {
         let w = await wishlistService.getAllWishlists();
         setWishlists(w);
@@ -69,7 +67,7 @@ export const LoadWishlist = ({ history }: RouteChildrenProps) => {
 
     return (
         <Container maxWidth="sm">
-            <Box className={classes.root} minHeight={isMobile ? "auto" : "100vh"}>
+            <Box sx={classes.root} minHeight={isMobile ? "auto" : "100vh"}>
                 <AppBar position="static">
                     <Toolbar>
                         <IconButton edge="start" color="inherit" aria-label="menu" onClick={goToMain}>
@@ -80,15 +78,15 @@ export const LoadWishlist = ({ history }: RouteChildrenProps) => {
                         </Typography>
                     </Toolbar>
                 </AppBar>
-                <Paper className={classes.content}>
+                <Paper sx={classes.content}>
                     {wishlists.length === 0 ?
                         <Box p={3} textAlign="center">
                             No wishlists to load
                     </Box>
                         :
                         wishlists.map((w) =>
-                            <Card key={w.id} className={classes.card} >
-                                <CardActionArea onClick={() => openWishlist(w)} className={classes.cardActionArea}>
+                            <Card key={w.id} sx={classes.card} >
+                                <CardActionArea onClick={() => openWishlist(w)} sx={classes.cardActionArea}>
                                     <Box p={2} flexGrow="0" flexShrink="1" overflow="hidden">
                                         <Typography gutterBottom variant="h5" component="h2">
                                             {w.name}

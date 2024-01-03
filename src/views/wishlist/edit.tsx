@@ -1,7 +1,7 @@
 import { faArrowLeft, faDownload, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { AppBar, Box, Button, createStyles, IconButton, makeStyles, Theme, Toolbar, Typography, useMediaQuery, useTheme } from "@material-ui/core";
-import { countBy, map as _map } from "lodash";
+import { AppBar, Box, Button, IconButton, Toolbar, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { keyBy as _keyBy, map as _map, countBy } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, RouteChildrenProps } from "react-router-dom";
 import ScrollContainer from 'react-scrollbars-custom';
@@ -10,6 +10,7 @@ import { FixedSizeGrid } from "react-window";
 import { WeaponListItem } from "../../components/weapon_list_item/weapon_list_item.component";
 import * as events from "../../events";
 import Wishlist from "../../interfaces/wishlist.interface";
+import { ExtendedCollectible, getFilterableWeapons } from "../../services/weapons.service";
 import { getBuilds } from "../../services/wishlistBuild.service";
 import { getWishlist } from "../../services/wishlists.service";
 
@@ -60,29 +61,28 @@ const CustomScrollbarsVirtualList = React.forwardRef((props, ref) => (
     <CustomScrollbars {...props} forwardedRef={ref} />
 ));
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            flexGrow: 1,
-            minHeight: "100vh",
-            display: "flex",
-            flexDirection: "column"
-        },
-        menuButton: {
-            marginRight: theme.spacing(2),
-        },
-        title: {
-            flexGrow: 1,
-        },
-    }),
-);
+const useStyles = {
+    root: {
+        flexGrow: 1,
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column"
+    },
+    menuButton: {
+        marginRight: 2,
+    },
+    title: {
+        flexGrow: 1,
+    },
+};
 
 export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
     const { wishlistId } = match?.params as any;
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
-    const classes = useStyles();
+    const classes = useStyles;
     const [wishlist, setWishlist] = useState<Wishlist>();
+    const [definitions, setDefinitions] = useState<{ [hash: number]: ExtendedCollectible }>()
     const [items, setItems] = useState<BuildCount[]>();
     const outerRef = React.createRef();
 
@@ -103,6 +103,10 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
             let id = parseInt(wishlistId);
             let w = await getWishlist(id);
             setWishlist(w);
+            let c = await getFilterableWeapons()
+            let mappedCollectible = _keyBy(c, 'displayProperties.name')
+
+            setDefinitions(mappedCollectible)
             refreshItems();
         }
         load();
@@ -118,13 +122,15 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
         };
     }, [wishlistId]);
 
-    return <Box className={classes.root}>
+    return <Box sx={classes.root}>
         <AppBar color="primary" position="static">
             <Toolbar >
                 <IconButton edge="start" color="inherit" aria-label="menu" onClick={goToMain}>
-                    <FontAwesomeIcon className={classes.menuButton} icon={faArrowLeft}></FontAwesomeIcon>
+                    <FontAwesomeIcon 
+                    // sx={classes.menuButton} 
+                    icon={faArrowLeft}></FontAwesomeIcon>
                 </IconButton>
-                <Typography variant="h6" className={classes.title}>
+                <Typography variant="h6" sx={classes.title}>
                     {wishlist?.name}
                 </Typography>
                 {isMobile ?
@@ -132,7 +138,7 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                         <FontAwesomeIcon icon={faPlusCircle}></FontAwesomeIcon>
                     </IconButton>
                     :
-                    <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/item/add`}>Add Item</Button>
+                    <Button color="primary" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/item/add`}>Add Item</Button>
                 }
                 <Box p={isMobile ? 0 : 1}></Box>
                 {
@@ -141,7 +147,7 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                             <FontAwesomeIcon icon={faDownload}></FontAwesomeIcon>
                         </IconButton>
                         :
-                        <Button color="default" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>Export Wishlist</Button>
+                        <Button color="primary" variant="contained" component={Link} to={`/wishlist/e/${wishlist?.id}/export`}>Export Wishlist</Button>
                 }
             </Toolbar>
         </AppBar>
@@ -168,7 +174,7 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                                 if (!item) return <Box style={style}></Box>
                                 return <Box style={style}>
                                     <Box padding={1}>
-                                        <WeaponListItem itemHash={item.itemHash} wishlistId={wishlistId}></WeaponListItem>
+                                        <WeaponListItem definition={definitions[item.itemHash]} itemHash={item.itemHash} wishlistId={wishlistId}></WeaponListItem>
                                     </Box>
                                 </Box>
                             }}
@@ -176,6 +182,6 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
                     );
                 }}
             </AutoSizer>
-        </Box>, [items, wishlistId, isMobile])}
+        </Box>, [items, isMobile, outerRef, definitions, wishlistId])}
     </Box>
 };

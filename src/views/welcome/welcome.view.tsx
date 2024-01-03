@@ -1,5 +1,5 @@
 
-import { Box, Button, Container, Typography } from "@material-ui/core";
+import { Box, Button, Container, Typography } from "@mui/material";
 import { Link as RouterLink } from 'react-router-dom';
 import React, { useState, useEffect } from "react";
 import { getAllWishlists } from "../../services/wishlists.service";

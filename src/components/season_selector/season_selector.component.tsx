@@ -1,10 +1,9 @@
-import { alpha, Box, Button, ButtonBase, ButtonGroupProps, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { alpha, Box, Button, ButtonBase, ButtonGroupProps, Theme } from "@mui/material";
 import React from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = {
         boxBackground: {
-            backgroundColor: alpha(theme.palette.common.black, .23),
+            backgroundColor: (theme:Theme) => alpha(theme.palette.common.black, .23),
             borderRadius: "8px",
         },
         seasonGrid: {
@@ -24,8 +23,8 @@ const useStyles = makeStyles((theme: Theme) =>
             alignItems: "center",
             borderWidth: "1px",
             borderStyle: "solid",
-            borderColor: alpha(theme.palette.common.white, .23),
-            backgroundColor: theme.palette.primary.dark
+            borderColor: (theme:Theme) => alpha(theme.palette.common.white, .23),
+            backgroundColor: 'primary.dark'
         },
         roundButton: {
             fontSize: "22px",
@@ -34,15 +33,14 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         selectedButton: {
             pointerEvents: "none",
-            backgroundColor: theme.palette.primary.main
+            backgroundColor: 'primary.main'
         },
         alignCenter: {
             display: "flex",
             justifyContent: "center",
             alignItems: "center"
         }
-    }),
-);
+    }
 
 export interface SeasonSelectorProps extends ButtonGroupProps {
     seasons?: Set<number>;
@@ -51,41 +49,41 @@ export interface SeasonSelectorProps extends ButtonGroupProps {
 }
 
 export const SeasonSelector = (props: SeasonSelectorProps) => {
-    const classes = useStyles();
+    const classes = useStyles;
     const buildMainButton = (season: number, label: string) => {
         const selected = props.selectedSeason === season;
-        let buttonClasses = [classes.seasonButton];
+        let buttonClasses:any[] = [classes.seasonButton];
         if (selected) buttonClasses.push(classes.selectedButton);
         return (
             <Button
-                className={buttonClasses.join(" ")}
+                sx={buttonClasses}
                 onClick={() => props.onSelectSeason(season)}>
                 {label ?? season}
             </Button >);
     }
     const buildSeasonButton = (season: number, label?: string) => {
         const selected = props.selectedSeason === season;
-        let buttonClasses = [classes.seasonButton, classes.roundButton];
+        let buttonClasses:any[] = [classes.seasonButton, classes.roundButton];
         if (selected) buttonClasses.push(classes.selectedButton);
-        return <div key={`season-${season}`} className={classes.buttonContainer}>
+        return <Box key={`season-${season}`} sx={classes.buttonContainer}>
             <ButtonBase
                 className={buttonClasses.join(" ")}
                 onClick={() => props.onSelectSeason(season)}>
                 {label ?? season}
             </ButtonBase>
-        </div>;
+        </Box>;
     }
     let {
         seasons,
     } = props;
     return (
-        <Box p={2} mb={1} className={classes.boxBackground}>
+        <Box p={2} mb={1} sx={classes.boxBackground}>
             <Box p={1} fontSize="16px">Season</Box>
             {buildMainButton(-1, "All")}
             <Box p={1}></Box>
-            <div className={classes.seasonGrid}>
+            <Box sx={classes.seasonGrid}>
                 {seasons ? [...seasons].sort((a,b)=>a-b).map((type) => buildSeasonButton(type)) : null}
-            </div>
+            </Box>
         </Box>
     );
 }

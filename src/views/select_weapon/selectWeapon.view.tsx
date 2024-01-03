@@ -1,6 +1,6 @@
-/* eslint-disable */
-import { AppBar, Box, createStyles, CssBaseline, alpha, IconButton, InputBase, makeStyles, Paper, Switch, Theme, Toolbar, Typography, useMediaQuery, useTheme } from "@material-ui/core";
-import { Close as CloseIcon, Search as SearchIcon, SentimentSatisfiedRounded } from '@material-ui/icons';
+import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { AppBar, Box, CssBaseline, IconButton, InputBase, Paper, Switch, Theme, Toolbar, Typography, alpha, useMediaQuery, useTheme } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, RouteChildrenProps } from "react-router-dom";
 import ScrollContainer from 'react-scrollbars-custom';
@@ -20,23 +20,30 @@ interface WeaponSearchData {
 async function loadSearchData(): Promise<WeaponSearchData> {
     let collectibles = await getFilterableWeapons();
     let types = new Set<string>();
+    let orderedTypes:string[] = [];
     let seasons = new Set<number>();
     collectibles.forEach((c) => {
-        if (c.item?.itemTypeDisplayName) {
-            types.add(c.item.itemTypeDisplayName);
+        if (c.itemTypeDisplayName) {
+            types.add(c.itemTypeDisplayName);
+            if(!orderedTypes.includes(c.itemTypeDisplayName)){
+                orderedTypes.push(c.itemTypeDisplayName);
+            }
         }
         if (c.season) {
             seasons.add(c.season);
         }
 
     });
-    collectibles = collectibles.sort((a, b) => {
+    collectibles.sort((a, b) => {
         let diff = b.season - a.season;
-        if (diff != 0) return diff;
-        diff = a.item.itemTypeAndTierDisplayName.localeCompare(b.item.itemTypeAndTierDisplayName);
-        if (diff != 0) return diff;
+        if (diff !== 0) return diff;
+        diff = b.inventory?.tierType - a.inventory?.tierType
+        if (diff !== 0) return diff;
+        diff = orderedTypes.indexOf(a.itemTypeDisplayName) - orderedTypes.indexOf(b.itemTypeDisplayName)
+        if (diff !== 0) return diff;
         return a.displayProperties.name > b.displayProperties.name ? 1 : -1;
     });
+    console.log(collectibles.map((c)=>c.itemTypeDisplayName))
     return {
         collectibles,
         types,
@@ -45,8 +52,7 @@ async function loadSearchData(): Promise<WeaponSearchData> {
 }
 
 const drawerWidth = 340;
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = {
         drawer: {
             position: "relative",
             zIndex: 1200,
@@ -55,26 +61,28 @@ const useStyles = makeStyles((theme: Theme) =>
             width: drawerWidth,
             flexShrink: 0,
             height: "100%",
-            padding: theme.spacing(1),
-            background: theme.palette.primary.dark,
+            padding: 1,
+            background: 'primary.dark',
         },
         search: {
             position: 'relative',
-            borderRadius: theme.shape.borderRadius,
-            backgroundColor: alpha(theme.palette.common.white, 0.15),
+            borderRadius: (theme:Theme) => theme.shape.borderRadius,
+            backgroundColor: (theme:Theme) => alpha(theme.palette.common.white, 0.15),
             '&:hover': {
-                backgroundColor: alpha(theme.palette.common.white, 0.25),
+                backgroundColor: (theme:Theme) => alpha(theme.palette.common.white, 0.25),
             },
-            marginRight: theme.spacing(2),
-            marginLeft: 0,
-            width: '100%',
-            [theme.breakpoints.up('sm')]: {
-                marginLeft: theme.spacing(3),
-                width: 'auto',
+            marginRight: 2,
+            marginLeft: {
+                sx: 0,
+                sm: 3,
             },
+            width: {
+                xs:'100%',
+                sm:'auto'
+            }
         },
         searchIcon: {
-            padding: theme.spacing(0, 2),
+            padding: (theme:Theme)=>theme.spacing(0, 2),
             height: '100%',
             position: 'absolute',
             pointerEvents: 'none',
@@ -86,13 +94,13 @@ const useStyles = makeStyles((theme: Theme) =>
             color: 'inherit',
         },
         inputInput: {
-            padding: theme.spacing(1, 1, 1, 0),
-            paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-            transition: theme.transitions.create('width'),
-            width: '100%',
-            [theme.breakpoints.up('md')]: {
-                width: '20ch',
-            },
+            padding: (theme:Theme) => theme.spacing(1, 1, 1, 0),
+            paddingLeft: (theme:Theme) => `calc(1em + ${theme.spacing(4)}px)`,
+            transition: (theme:Theme) => theme.transitions.create('width'),
+            width: {
+                xs: '100%',
+                md: '20ch'
+            }
         },
         weaponTypeList: {
             flexGrow: 1,
@@ -102,19 +110,18 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         content: {
             flexGrow: 1,
-            backgroundColor: theme.palette.background.default,
-            padding: theme.spacing(3),
+            backgroundColor: 'background.default',
+            padding: 3,
         },
         toolbar: {
-            paddingRight: theme.spacing(1),
+            paddingRight: 1,
         }
-    }),
-);
+    };
 
 export const SelectWeapon = ({ match }: RouteChildrenProps) => {
     const params = match!.params as any;
     const wishlistId = params.wishlistId;
-    const classes = useStyles();
+    const classes = useStyles;
     const [selectedWeaponType, setSelectedType] = useState<string>();
     const [selectedSeason, setSelectedSeason] = useState<number>(-1);
     const [onlyRandomRolls, setOnlyRandomRolls] = useState<boolean>(false);
@@ -126,18 +133,19 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
     const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
 
 
-    const filterCollectibles = () => {
-        setFilteredCollectibles(data?.collectibles?.filter((c) => {
-            let textMatch = c.displayProperties.name.toLowerCase().indexOf(textSearch.toLowerCase()) > -1;
-            let typeMatch = !selectedWeaponType || c.item?.itemTypeDisplayName.toLowerCase() === selectedWeaponType.toLowerCase();
-            let seasonMatch = selectedSeason < 0 || c.season === selectedSeason;
-            return textMatch && typeMatch && seasonMatch;
-        }) ?? []);
-    }
+    
 
     useEffect(() => {
+        const filterCollectibles = () => {
+            setFilteredCollectibles(data?.collectibles?.filter((c) => {
+                let textMatch = c.displayProperties.name.toLowerCase().indexOf(textSearch.toLowerCase()) > -1;
+                let typeMatch = !selectedWeaponType || c?.itemTypeDisplayName.toLowerCase() === selectedWeaponType.toLowerCase();
+                let seasonMatch = selectedSeason < 0 || c.season === selectedSeason;
+                return textMatch && typeMatch && seasonMatch;
+            }) ?? []);
+        }
         filterCollectibles();
-    }, [debouncedSearchTerm, selectedWeaponType, onlyRandomRolls, selectedSeason]);
+    }, [debouncedSearchTerm, selectedWeaponType, onlyRandomRolls, selectedSeason, data, textSearch]);
 
     useEffect(() => {
         async function load() {
@@ -150,46 +158,57 @@ export const SelectWeapon = ({ match }: RouteChildrenProps) => {
     return (<DefaultModal display="flex" flexDirection="row" width={isMobile ? '100vw' : "calc(100vw - 80px)"} height={isMobile ? '100vh' : "calc(100vh - 80px)"}>
         <CssBaseline />
         {useMemo(() => {
-            return isMobile ? <Box></Box> : (<Paper square elevation={5} className={classes.drawer}>
+            return isMobile ? <Box></Box> : (<Paper square elevation={5} sx={{
+                    position: "relative",
+                    zIndex: 1200,
+                    display: "flex",
+                    flexDirection: "column",
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    height: "100%",
+                    padding: theme.spacing(1),
+                    background: 'primary.dark',
+            }}>
                 <Box pt={1}></Box>
-                <ScrollContainer className={classes.weaponTypeList} disableTracksWidthCompensation={true} >
-                    <WeaponTypeSelector className={classes.weaponTypes} weaponTypes={data?.types} selectedType={selectedWeaponType} onSelectType={setSelectedType} ></WeaponTypeSelector>
-                    <SeasonSelector className={classes.weaponTypes} seasons={data?.seasons} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} ></SeasonSelector>
+                <ScrollContainer disableTracksWidthCompensation={true} >
+                    <WeaponTypeSelector sx={classes.weaponTypes} weaponTypes={data?.types} selectedType={selectedWeaponType} onSelectType={setSelectedType} ></WeaponTypeSelector>
+                    <SeasonSelector sx={classes.weaponTypes} seasons={data?.seasons} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} ></SeasonSelector>
                 </ScrollContainer>
                 <Box p={1} pb={0} display="flex" justifyContent="space-between" alignItems="center" height={30}>
                     <div>Only random rolls</div>
                     <Switch value={onlyRandomRolls} onChange={(_, value) => setOnlyRandomRolls(value)}></Switch>
                 </Box>
             </Paper>)
-        }, [isMobile, data, selectedWeaponType, selectedSeason])}
+        }, [isMobile, theme, classes.weaponTypes, data, selectedWeaponType, selectedSeason, onlyRandomRolls])}
         <Box width="100%" display="flex" flexDirection="column">
             <AppBar position="static">
-                <Toolbar className={classes.toolbar}>
+                <Toolbar sx={classes.toolbar}>
                     {isMobile ? <Box></Box> : <Typography variant="h6" noWrap>
                         Add Weapon
                     </Typography>}
-                    <Box className={classes.search}>
-                        <Box className={classes.searchIcon}>
-                            <SearchIcon />
+                    <Box sx={classes.search}>
+                        <Box sx={classes.searchIcon}>
+                            <FontAwesomeIcon icon={faSearch} />
+                            
                         </Box>
                         <InputBase
                             onChange={(event) => { setTextSearch(event.target.value) }}
                             placeholder="Search…"
-                            classes={{
-                                root: classes.inputRoot,
-                                input: classes.inputInput,
-                            }}
+                            // classes={{
+                            //     root: classes.inputRoot,
+                            //     input: classes.inputInput,
+                            // }}
                             inputProps={{ 'aria-label': 'search' }}
                         />
                     </Box>
                     <Box flex={1}></Box>
                     <IconButton component={Link} to={`/wishlist/e/${params.wishlistId}/`}>
-                        <CloseIcon></CloseIcon>
+                        <FontAwesomeIcon icon={faTimes} />
                     </IconButton>
                 </Toolbar>
             </AppBar>
             <Box flex={2}>
-                {useMemo(() => <CollectibleList wishlistId={wishlistId} collectibles={filteredCollectibles}></CollectibleList>, [filteredCollectibles])}
+                {useMemo(() => <CollectibleList wishlistId={wishlistId} collectibles={filteredCollectibles}></CollectibleList>, [filteredCollectibles, wishlistId])}
             </Box>
         </Box>
     </DefaultModal>);
