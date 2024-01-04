@@ -1,4 +1,4 @@
-import { Box, Button } from "@material-ui/core";
+import { Box, Button } from "@mui/material";
 import React from "react";
 import Wishlist, { WishlistBuild } from "../../../interfaces/wishlist.interface";
 import WishlistMetadataForm from "../metadataForm";

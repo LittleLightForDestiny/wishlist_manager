@@ -20,7 +20,12 @@ interface DestinyManifestData {
     DestinyPlugSetDefinition?: { [id: number]: DestinyPlugSetDefinition };
 }
 
+interface HashesByName{
+    [name:string]: number[];
+}
+
 let manifestData: DestinyManifestData;
+let inventoryItemHashesByName:HashesByName;
 
 db.version(1).stores({
     content: 'version',
@@ -70,6 +75,27 @@ export function getCollectibles(): { [id: string]: DestinyCollectibleDefinition 
 
 export function getInventoryItemList(): { [id: string]: DestinyInventoryItemDefinition } | undefined {
     return manifestData.DestinyInventoryItemDefinition;
+}
+
+export function getInventoryItemHashesByName(name:string):number[] {
+    if(!inventoryItemHashesByName){
+        createInventoryItemHashesByNameMap();
+    }
+    return inventoryItemHashesByName[name] ?? []
+}
+
+function createInventoryItemHashesByNameMap(){
+    inventoryItemHashesByName = {};
+    for(let i in manifestData.DestinyInventoryItemDefinition){
+        let item = manifestData.DestinyInventoryItemDefinition[i]
+        let name = item?.displayProperties?.name
+        let hash = item?.hash
+        if(!name || !hash) continue
+        if(!inventoryItemHashesByName[name]){
+            inventoryItemHashesByName[name] = []
+        }
+        inventoryItemHashesByName[name].push(hash)
+    }
 }
 
 export function getCollectibleDefinition(collectibleHash: number): DestinyCollectibleDefinition | undefined {

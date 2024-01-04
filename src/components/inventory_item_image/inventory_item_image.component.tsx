@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
 import { manifest } from '../../services';
-import { Box } from "@material-ui/core";
+import { Box } from "@mui/material";
 import { bungieURL } from "../../utils/bungie_url";
 
 
@@ -19,7 +19,7 @@ export const InventoryItemImage = (props: {
 
     if (!def) {
         load();
-        return <Box {...props}></Box>
+        return <Box></Box>
     }
     let url = def.displayProperties.icon;
     if (props.resolveUrlFn) {

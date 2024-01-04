@@ -1,6 +1,6 @@
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AppBar, Box, CircularProgress, Container, createStyles, IconButton, makeStyles, Paper, Theme, Toolbar, Typography } from "@material-ui/core";
+import { AppBar, Box, CircularProgress, Container, IconButton, Paper, Toolbar, Typography } from "@mui/material";
 import delay from 'delay';
 import { parse } from "query-string";
 import React, { useEffect, useState } from "react";
@@ -10,13 +10,12 @@ import { saveBuild } from "../../services/wishlistBuild.service";
 import { createWishlist } from "../../services/wishlists.service";
 import { importLittleLight } from "../../utils/converters/littlelight.converter";
 import { importWishlistFile } from "../../utils/wishlist_loader";
+import { ImportWishlistForm, MediaType, OnWishlistImport, WishlistData as WishlistFormData, WishlistType } from "./import/import_form";
 import { OnImportFinish, WishlistImporter } from "./import/importer";
 import { ImporterMetadataForm } from "./import/importer_metadata_form";
-import { ImportWishlistForm, MediaType, OnWishlistImport, WishlistData as WishlistFormData, WishlistType } from "./import/import_form";
 
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = {
         noPadding: {
             padding: 0,
             margin: 0,
@@ -26,17 +25,16 @@ const useStyles = makeStyles((theme: Theme) =>
             minHeight: '100vh',
             flexDirection: "column",
             justifyContent: "center",
-            padding: theme.spacing(0),
+            padding: 0,
         },
         card: {
             display: 'flex',
-            marginBottom: theme.spacing(1),
+            marginBottom: 1,
         },
         content: {
-            padding: theme.spacing(2)
+            padding: 2,
         }
-    }),
-);
+    }
 
 enum Phase {
     importForm = "import-form",
@@ -47,7 +45,7 @@ enum Phase {
 
 export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
 
-    const classes = useStyles();
+    const classes = useStyles;
     const [phase, setPhase] = useState<Phase>(Phase.importForm);
 
     const [formData, setFormData] = useState<WishlistFormData>();
@@ -121,11 +119,11 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
             history.push(`/wishlist/e/${w.id}`);
         }
         checkURL();
-    }, [location.search]);
+    }, [history, location.search]);
     console.log(formData);
     return (
         <Container maxWidth="sm">
-            <Box className={classes.root}>
+            <Box sx={classes.root}>
                 <AppBar position="static">
                     <Toolbar>
                         <IconButton edge="start" color="inherit" aria-label="menu" onClick={goToMain}>

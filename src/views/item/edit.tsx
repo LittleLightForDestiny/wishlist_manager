@@ -1,7 +1,7 @@
-import { AppBar, Box, Button, Card, CardMedia, createStyles, CssBaseline, Grid, IconButton, makeStyles, Theme, Toolbar, Typography, useMediaQuery, useTheme } from "@material-ui/core";
-import { Close as CloseIcon } from '@material-ui/icons';
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { AppBar, Box, Button, Card, CardMedia, CssBaseline, Grid, IconButton, Toolbar, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
-import * as events from "../../events";
 import { cloneDeep } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, RouteChildrenProps } from "react-router-dom";
@@ -9,19 +9,18 @@ import ScrollContainer from "react-scrollbars-custom";
 import { DefaultModal } from "../../components/default_modal/defaultModal.component";
 import { SectionHeader } from "../../components/section_header/section_header.component";
 import { WishlistBuildListItem } from "../../components/wishlist_build_list_item/wishlist_build_list_item.component";
+import * as events from "../../events";
 import { WishlistBuild } from "../../interfaces/wishlist.interface";
 import { getInventoryItemDefinition } from "../../services/manifest.service";
 import { deleteBuild, getBuilds } from "../../services/wishlistBuild.service";
 import { bungieURL } from "../../utils/bungie_url";
 import WishlistBuildForm from "../build/buildForm";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = {
         toolbar: {
-            paddingRight: theme.spacing(1),
+            paddingRight: 1,
         },
-    }),
-);
+    }
 
 const ScrollableWhen = ({ children, condition }: any) => {
     if (condition) {
@@ -35,7 +34,7 @@ const ScrollableWhen = ({ children, condition }: any) => {
 export const EditItem = ({ match, history }: RouteChildrenProps<{ itemHash: string, wishlistId: string }>) => {
     const itemHash: number = parseInt(match?.params["itemHash"] || "");
     const wishlistId: number = parseInt(match?.params["wishlistId"] || "");
-    const classes = useStyles();
+    const classes = useStyles;
     const [definition, setDefinition] = useState<DestinyInventoryItemDefinition>();
     const [builds, setBuilds] = useState<WishlistBuild[]>();
     const [selectedBuild, setSelectedBuild] = useState<WishlistBuild>();
@@ -64,19 +63,19 @@ export const EditItem = ({ match, history }: RouteChildrenProps<{ itemHash: stri
         return () => {
             unsubscribe();
         };
-    }, [itemHash, wishlistId]);
+    }, [definition, itemHash, wishlistId]);
 
     return (
         <DefaultModal display="flex" flexDirection="column" width={isMobile ? '100vw' : "calc(100vw - 80px)"} height={isMobile ? '100vh' : "calc(100vh - 80px)"}>
             <CssBaseline />
             <AppBar position="static">
-                <Toolbar className={classes.toolbar}>
+                <Toolbar sx={classes.toolbar}>
                     <Typography variant="h6" noWrap>
                         {definition?.displayProperties?.name ?? ""}
                     </Typography>
                     <Box flex={1}></Box>
                     <IconButton component={Link} to={`/wishlist/e/${wishlistId}/`}>
-                        <CloseIcon></CloseIcon>
+                        <FontAwesomeIcon icon={faTimes} fontSize="5px" />
                     </IconButton>
                 </Toolbar>
             </AppBar>

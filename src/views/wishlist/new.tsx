@@ -1,27 +1,25 @@
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AppBar, Box, Button, Container, createStyles, IconButton, makeStyles, Paper, Theme, Toolbar, Typography } from "@material-ui/core";
+import { AppBar, Box, Button, Container, IconButton, Paper, Toolbar, Typography } from "@mui/material";
 import React from "react";
 import { RouteChildrenProps } from "react-router-dom";
 import Wishlist from "../../interfaces/wishlist.interface";
-import {createWishlist} from '../../services/wishlists.service';
+import { createWishlist } from '../../services/wishlists.service';
 import WishlistMetadataForm from "./metadataForm";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = {
 
-        root: {
-            display: 'flex',
-            minHeight: '100vh',
-            flexDirection: "column",
-            justifyContent: "center",
-            padding: theme.spacing(0),
-        },
-    }),
-);
+    root: {
+        display: 'flex',
+        minHeight: '100vh',
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: 0,
+    },
+};
 
 export const NewWishlist = ({ history }: RouteChildrenProps) => {
-    const classes = useStyles();
+    const classes = useStyles;
 
     var wishlist: Wishlist = {};
 
@@ -36,7 +34,7 @@ export const NewWishlist = ({ history }: RouteChildrenProps) => {
     return (
         <Container maxWidth="sm">
 
-            <Box className={classes.root}>
+            <Box sx={classes.root}>
                 <AppBar position="static">
                     <Toolbar>
                         <IconButton edge="start" color="inherit" aria-label="menu" onClick={goToMain}>

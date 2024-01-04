@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from "@material-ui/core";
+import { Button, ButtonGroup } from "@mui/material";
 import { DestinyPresentationNodeDefinition } from "bungie-api-ts/destiny2/interfaces";
 import React from "react";
 import { bungieURL } from "../../utils/bungie_url";

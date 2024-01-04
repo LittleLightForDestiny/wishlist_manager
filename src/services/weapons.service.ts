@@ -1,18 +1,20 @@
 import axios from "axios";
 import { DestinyCollectibleDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
-import { getCollectibleDefinition, getCollectibles, getInventoryItemDefinition, getPresentationNodes } from "./manifest.service";
+import { uniqBy } from "lodash";
+import { manifest } from ".";
+import { getCollectibleDefinition, getCollectibles, getInventoryItemDefinition, getInventoryItemList, getPresentationNodes } from "./manifest.service";
 
-const rootNode = 3790247699;
+const collectionsWeaponsRootNode = 3790247699;
 const destinyWeaponType = 3;
-let filteredWeapons: ExtendedCollectible[];
+let filterableWeapons: ExtendedCollectible[];
 let allCollectibles: { [id: string]: DestinyCollectibleDefinition };
 let sourceToSeason: { [id: string]: string };
 let seasonsBackup: { [id: string]: string };
 let watermarkToSeason: { [id: string]: string };
 
-export interface ExtendedCollectible extends DestinyCollectibleDefinition {
-    item?: DestinyInventoryItemDefinition;
+export interface ExtendedCollectible extends DestinyInventoryItemDefinition{
     season?: number;
+    confirmed: boolean;
 }
 
 async function loadD2AI() {
@@ -23,33 +25,71 @@ async function loadD2AI() {
 }
 
 export async function getFilterableWeapons(): Promise<ExtendedCollectible[]> {
-    if (filteredWeapons) return filteredWeapons;
+    if (filterableWeapons) return filterableWeapons;
     await loadD2AI();
-    filteredWeapons = [];
-    allCollectibles = getCollectibles()!;
-    addItems(rootNode);
-    return filteredWeapons;
+    allCollectibles = getCollectibles();
+    const collectionItems = getItemsFromCollections(collectionsWeaponsRootNode);
+    const craftableItems = getItemsFromCraftables()
+    const itemVariations = getAllItems([...collectionItems, ...craftableItems])
+    filterableWeapons = uniqBy([...collectionItems, ...craftableItems, ...itemVariations], (i)=>i.hash);
+    return filterableWeapons;
 }
 
-function addItems(nodeHash: number) {
-    const nodes = getPresentationNodes()!;
+function getItemsFromCollections(nodeHash: number) : ExtendedCollectible[] {
+    const nodes = getPresentationNodes();
     const node = nodes[nodeHash];
-    node?.children?.presentationNodes?.forEach((node) => addItems(node.presentationNodeHash));
-    node?.children?.collectibles?.forEach((c) => {
+    const childNodes = node?.children?.presentationNodes ?? []
+    let items:ExtendedCollectible[]= []
+    for( let n of childNodes){
+        let childItems = getItemsFromCollections(n.presentationNodeHash)
+        items = [...items, ...childItems]
+    }
+    const childCollectibles = node?.children?.collectibles ?? []
+    for( let c of childCollectibles){
         const collectible = allCollectibles[c.collectibleHash];
         const item = getInventoryItemDefinition(collectible.itemHash);
         if (item?.itemType === destinyWeaponType) {
-            filteredWeapons.push(getExtendedCollectible(collectible));
+            const extended = getExtendedItem(item, collectible)
+            items.push(extended)
         }
-    });
+    }
+    return items
 }
 
-function getExtendedCollectible(collectible: DestinyCollectibleDefinition): ExtendedCollectible {
-    const item = getInventoryItemDefinition(collectible.itemHash);
+function getItemsFromCraftables() : ExtendedCollectible[] {
+    const patterns = Object.values(getInventoryItemList()).filter((i)=>i.itemType === 30)
+    const items:ExtendedCollectible[] = patterns.map((p)=>{
+        const outputHash = p?.crafting?.outputItemHash
+        if(!outputHash) return null
+        const  item = getInventoryItemDefinition(outputHash)
+        if(!item) return null
+        return getExtendedItem(item, null, p)
+    }).filter((i)=>!!i)
+    return items
+}
+
+function getAllItems(items:ExtendedCollectible[]): ExtendedCollectible[]{
+    const allItems = Object.values(manifest.getInventoryItemList())
+    const extendedItems = allItems.map((i)=>getExtendedItem(i))
+
+    return extendedItems.filter((item)=>{
+        if(!item?.equippable) return false
+        if(item.itemType !== 3) return false
+        return true
+    });
+
+}
+
+function getExtendedItem(
+    item:DestinyInventoryItemDefinition, 
+    collectible?: DestinyCollectibleDefinition,
+    craftable?: DestinyInventoryItemDefinition,
+    ): ExtendedCollectible {
+    const confirmed = collectible?.itemHash === item.hash || craftable?.crafting?.outputItemHash === item.hash;
     return {
-        ...collectible,
+        ...item,
         season: getSeason(collectible, item),
-        item
+        confirmed: confirmed,
     };
 }
 
@@ -61,24 +101,24 @@ export async function getSeasonByItemHash(itemHash: number) {
 
 }
 
-function getSeason(collectible: DestinyCollectibleDefinition, item?: DestinyInventoryItemDefinition): number | undefined {
+function getSeason(collectible?: DestinyCollectibleDefinition, item?: DestinyInventoryItemDefinition): number | undefined {
     if (item?.iconWatermark && watermarkToSeason[item?.iconWatermark]) {
         return parseInt(watermarkToSeason[item?.iconWatermark]);
     }
     if (item?.iconWatermarkShelved && watermarkToSeason[item?.iconWatermarkShelved]) {
         return parseInt(watermarkToSeason[item?.iconWatermarkShelved]);
     }
-    if (sourceToSeason[collectible.sourceHash]) {
-        return parseInt(sourceToSeason[collectible.sourceHash]);
+    if (sourceToSeason[collectible?.sourceHash]) {
+        return parseInt(sourceToSeason[collectible?.sourceHash]);
     }
-    if (sourceToSeason[collectible.itemHash]) {
-        return parseInt(sourceToSeason[collectible.itemHash]);
+    if (sourceToSeason[collectible?.itemHash]) {
+        return parseInt(sourceToSeason[collectible?.itemHash]);
     }
-    if (seasonsBackup[collectible.sourceHash]) {
-        return parseInt(seasonsBackup[collectible.sourceHash]);
+    if (seasonsBackup[collectible?.sourceHash]) {
+        return parseInt(seasonsBackup[collectible?.sourceHash]);
     }
-    if (seasonsBackup[collectible.itemHash]) {
-        return parseInt(seasonsBackup[collectible.itemHash]);
+    if (seasonsBackup[collectible?.itemHash]) {
+        return parseInt(seasonsBackup[collectible?.itemHash]);
     }
     return 1;
 }

@@ -1,6 +1,6 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AppBar, Box, Button, Card, Checkbox, CircularProgress, createStyles, FormControlLabel, IconButton, makeStyles, Paper, Radio, RadioGroup, TextField, Theme, Toolbar, Typography } from "@material-ui/core";
+import { AppBar, Box, Button, Card, Checkbox, CircularProgress, FormControlLabel, IconButton, Paper, TextField, Toolbar, Typography } from "@mui/material";
 import { saveAs } from 'file-saver';
 import React, { useState } from "react";
 import { RouteChildrenProps } from "react-router-dom";
@@ -8,28 +8,26 @@ import { DefaultModal } from "../../components/default_modal/defaultModal.compon
 import { exportPackageAsLittleLightWishlist } from "../../utils/converters/littlelight.converter";
 
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        toolbar: {
-            display: "flex",
-            justifyContent: "space-between",
-        },
-        root: {
-            display: 'flex',
-            minHeight: '100vh',
-            flexDirection: "column",
-            justifyContent: "center",
-            padding: theme.spacing(0),
-        },
-        card: {
-            display: 'flex',
-            marginBottom: theme.spacing(1),
-        },
-        content: {
-            padding: theme.spacing(2)
-        }
-    }),
-);
+const useStyles = {
+    toolbar: {
+        display: "flex",
+        justifyContent: "space-between",
+    },
+    root: {
+        display: 'flex',
+        minHeight: '100vh',
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: 0,
+    },
+    card: {
+        display: 'flex',
+        marginBottom: 1,
+    },
+    content: {
+        padding: 2,
+    }
+}
 
 type ExportPackageModalProps = {
     wishlistIds: Set<number>
@@ -41,7 +39,7 @@ export const ExportPackageModal = (props: RouteChildrenProps & ExportPackageModa
     const [prettyPrint, setPrettyPrint] = useState<boolean>(false);
     const [wishlistName, setWishlistName] = useState<String>("");
     const [wishlistDescription, setWishlistDescription] = useState<String>("");
-    const classes = useStyles();
+    const classes = useStyles;
 
     function exportButtonEnabled() {
         return true;
@@ -76,7 +74,7 @@ export const ExportPackageModal = (props: RouteChildrenProps & ExportPackageModa
     return (
         <DefaultModal width={400} display="flex" flexDirection="column">
             <AppBar position="static">
-                <Toolbar className={classes.toolbar}>
+                <Toolbar sx={classes.toolbar}>
                     <Typography>Export Package</Typography>
                     <IconButton edge="end" color="inherit" aria-label="menu" onClick={close}>
                         <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>

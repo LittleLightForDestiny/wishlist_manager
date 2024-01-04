@@ -1,22 +1,20 @@
-import { Box, BoxProps, createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Box, BoxProps, Theme } from "@mui/material";
 import React from "react";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = {
         sectionHeader: {
-            backgroundColor: theme.palette.primary.dark,
-            padding: theme.spacing(1),
-            marginBottom: theme.spacing(1),
-            borderRadius: theme.shape.borderRadius,
+            backgroundColor: 'primary.dark',
+            padding: 1,
+            marginBottom: 1,
+            borderRadius: (theme:Theme) => theme.shape.borderRadius,
 
         }
-    }),
-);
+    }
 
 export const SectionHeader = (props: BoxProps) => {
-    const classes = useStyles();
+    const classes = useStyles;
     return (
-        <Box className={classes.sectionHeader} {...props}>
+        <Box sx={classes.sectionHeader} {...props}>
             {props.children}
         </Box>);
 }

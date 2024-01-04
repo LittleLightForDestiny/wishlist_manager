@@ -1,40 +1,38 @@
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { AppBar, Box, Button, Card, createStyles, FormControlLabel, IconButton, makeStyles, Radio, RadioGroup, Theme, Toolbar, Typography, Paper, CircularProgress, Checkbox } from "@material-ui/core";
-import React, { useState } from "react";
-import { DefaultModal } from "../../components/default_modal/defaultModal.component";
-import { WishlistType } from "./import/import_form";
-import { RouteChildrenProps } from "react-router-dom";
-import { exportLittleLight } from "../../utils/converters/littlelight.converter";
-import { getWishlist } from "../../services/wishlists.service";
-import { exportDIM } from "../../utils/converters/dim.converter";
-import { exportCSV } from "../../utils/converters/csv.converter";
+import { AppBar, Box, Button, Card, Checkbox, CircularProgress, FormControlLabel, IconButton, Paper, Radio, RadioGroup, Toolbar, Typography } from "@mui/material";
 import { saveAs } from 'file-saver';
+import React, { useState } from "react";
+import { RouteChildrenProps } from "react-router-dom";
+import { DefaultModal } from "../../components/default_modal/defaultModal.component";
+import { getWishlist } from "../../services/wishlists.service";
+import { exportCSV } from "../../utils/converters/csv.converter";
+import { exportDIM } from "../../utils/converters/dim.converter";
+import { exportLittleLight } from "../../utils/converters/littlelight.converter";
 import { exportXLS } from "../../utils/converters/xls.converter";
+import { WishlistType } from "./import/import_form";
 
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        toolbar: {
-            display: "flex",
-            justifyContent: "space-between",
-        },
-        root: {
-            display: 'flex',
-            minHeight: '100vh',
-            flexDirection: "column",
-            justifyContent: "center",
-            padding: theme.spacing(0),
-        },
-        card: {
-            display: 'flex',
-            marginBottom: theme.spacing(1),
-        },
-        content: {
-            padding: theme.spacing(2)
-        }
-    }),
-);
+const useStyles = {
+    toolbar: {
+        display: "flex",
+        justifyContent: "space-between",
+    },
+    root: {
+        display: 'flex',
+        minHeight: '100vh',
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: 0,
+    },
+    card: {
+        display: 'flex',
+        marginBottom: 1,
+    },
+    content: {
+        padding: 2,
+    }
+}
 
 
 export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
@@ -43,7 +41,7 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
     const [working, setWorking] = useState<boolean>(false);
     const [omitDescriptions, setOmitDescriptions] = useState<boolean>(false);
     const [prettyPrint, setPrettyPrint] = useState<boolean>(false);
-    const classes = useStyles();
+    const classes = useStyles;
 
     function exportButtonEnabled() {
         return wishlistType !== null;
@@ -62,8 +60,8 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
         switch (wishlistType) {
             case WishlistType.LittleLight:
                 data = await exportLittleLight(parseInt(wishlistId), {
-                    JSONPrettyPrint:prettyPrint,
-                    omitDescriptions:omitDescriptions
+                    JSONPrettyPrint: prettyPrint,
+                    omitDescriptions: omitDescriptions
                 });
                 console.log(wishlist);
                 filename = (wishlist?.name || "wishlist").replace(/.(json|txt)$/, "");
@@ -97,7 +95,7 @@ export const ExportWishlistModal = ({ match, history }: RouteChildrenProps) => {
     return (
         <DefaultModal width={400} display="flex" flexDirection="column">
             <AppBar position="static">
-                <Toolbar className={classes.toolbar}>
+                <Toolbar sx={classes.toolbar}>
                     <Typography>Export Wishlist</Typography>
                     <IconButton edge="end" color="inherit" aria-label="menu" onClick={close}>
                         <FontAwesomeIcon icon={faTimes}></FontAwesomeIcon>
