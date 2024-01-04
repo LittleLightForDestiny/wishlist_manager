@@ -221,10 +221,16 @@ export const WishlistBuildForm = (props: { wishlistId: number, build?: WishlistB
     function buildPerkIcon(p: number, onClick: () => void) {
         const def = manifest.getInventoryItemDefinition(p);
         const isEnhanced = def.inventory.tierType === 3;
+        const isTracker = def.plug?.plugCategoryIdentifier?.endsWith('.trackers')
+        if(isTracker) return <Box key={p} />
         return <Tooltip key={p} trigger="mouseenter" html={<ModTooltipContent hash={p}></ModTooltipContent>} >
             <Box onClick={(_) => onClick()} 
             sx={isEnhanced ? classes.enhancedPerk : classes.perk}>
-                <InventoryItemImage  hash={p}></InventoryItemImage>
+                <InventoryItemImage 
+                hash={p}
+                width='100%'
+                height='100%'
+                ></InventoryItemImage>
             </Box>
         </Tooltip>;
     }

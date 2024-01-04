@@ -1,14 +1,15 @@
-import { Box, useTheme, useMediaQuery } from "@mui/material";
+import { Box } from "@mui/material";
 import React from "react";
 import RSC from 'react-scrollbars-custom';
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeGrid } from 'react-window';
-import { WeaponListItem } from "../weapon_list_item/weapon_list_item.component";
 import { ExtendedCollectible } from "../../services/weapons.service";
+import { WeaponListItem } from "../weapon_list_item/weapon_list_item.component";
 
 export interface CollectibleListProps {
     collectibles: ExtendedCollectible[];
     wishlistId: number;
+    columnCount: number;
 }
 
 const CustomScrollbars = ({ children,
@@ -56,11 +57,10 @@ const CustomScrollbarsVirtualList = React.forwardRef((props, ref) => (
 
 export const CollectibleList = (props: CollectibleListProps) => {
     const outerRef = React.createRef();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('xs'));
+    const columnCount = props.columnCount;
 
     const buildItem = (collectible: ExtendedCollectible) => {
-        
+
         return (
             <Box style={{ padding: "8px" }}>
                 <WeaponListItem definition={collectible} itemHash={collectible?.hash} wishlistId={props.wishlistId}></WeaponListItem>
@@ -69,31 +69,32 @@ export const CollectibleList = (props: CollectibleListProps) => {
 
     return (
         <AutoSizer style={{ width: "100%", height: "100%" }}>
-            {({ height, width }) => {
+            {({ height, width }: { height: number, width: number }) => {
                 let totalItems = props.collectibles.length;
-                let columnCount = isMobile ? 1 : 3;
                 let rowCount = Math.ceil(totalItems / columnCount);
+                const columnWidth = width / columnCount
                 return (
-
-                    <FixedSizeGrid
-                        outerElementType={CustomScrollbarsVirtualList}
-                        outerRef={outerRef}
-                        columnCount={columnCount}
-                        columnWidth={width / columnCount}
-                        height={height}
-                        rowCount={rowCount}
-                        rowHeight={80}
-                        width={width}
-                    >
-                        {({ style, rowIndex, columnIndex }) => {
-                            let index = rowIndex * columnCount + columnIndex;
-                            let collectible = props.collectibles[index];
-                            if (!collectible) return <Box style={style}></Box>
-                            return <Box style={style}>
-                                {buildItem(collectible)}
-                            </Box>
-                        }}
-                    </FixedSizeGrid>
+                    <Box key={`column_width_${columnWidth}`}>
+                        <FixedSizeGrid
+                            outerElementType={CustomScrollbarsVirtualList}
+                            outerRef={outerRef}
+                            columnCount={columnCount}
+                            columnWidth={columnWidth}
+                            height={height}
+                            rowCount={rowCount}
+                            rowHeight={80}
+                            width={width}
+                        >
+                            {({ style, rowIndex, columnIndex }) => {
+                                let index = rowIndex * columnCount + columnIndex;
+                                let collectible = props.collectibles[index];
+                                if (!collectible) return <Box style={style}></Box>
+                                return <Box style={style}>
+                                    {buildItem(collectible)}
+                                </Box>
+                            }}
+                        </FixedSizeGrid>
+                    </Box>
                 );
             }}
         </AutoSizer>

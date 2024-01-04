@@ -1,46 +1,42 @@
-import { alpha, Box, Button, ButtonBase, ButtonGroupProps, Theme } from "@mui/material";
+import { Box, Button, ButtonGroupProps, colors, styled } from "@mui/material";
 import React from "react";
 
-const useStyles = {
-        boxBackground: {
-            backgroundColor: (theme:Theme) => alpha(theme.palette.common.black, .23),
-            borderRadius: "8px",
-        },
-        seasonGrid: {
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-        },
-        buttonContainer: {
-            aspectRatio: "1",
-            width: "16.6%",
-            padding: "4px",
-        },
-        seasonButton: {
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderWidth: "1px",
-            borderStyle: "solid",
-            borderColor: (theme:Theme) => alpha(theme.palette.common.white, .23),
-            backgroundColor: 'primary.dark'
-        },
-        roundButton: {
-            fontSize: "22px",
-            borderRadius: "50%",
-            height: "100%",
-        },
-        selectedButton: {
-            pointerEvents: "none",
-            backgroundColor: 'primary.main'
-        },
-        alignCenter: {
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center"
-        }
-    }
+const SeasonGrid = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+}))
+
+const AllButton = styled(Button)(({ theme }) => ({
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: colors.blueGrey[400],
+    backgroundColor: 'primary.dark',
+    color: 'white',
+}))
+
+const RoundButtonContainer = styled(Box)(({ theme }) => ({
+    aspectRatio: 1,
+    width: "16.6%",
+    padding: 2
+}))
+
+const RoundButton = styled(Button)(({ theme }) => ({
+    minWidth:0,
+    aspectRatio: 1,
+    fontSize: "22px",
+    borderRadius: "50%",
+    height: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    color:'white',
+    borderColor: colors.blueGrey[400],
+}))
 
 export interface SeasonSelectorProps extends ButtonGroupProps {
     seasons?: Set<number>;
@@ -49,41 +45,40 @@ export interface SeasonSelectorProps extends ButtonGroupProps {
 }
 
 export const SeasonSelector = (props: SeasonSelectorProps) => {
-    const classes = useStyles;
     const buildMainButton = (season: number, label: string) => {
         const selected = props.selectedSeason === season;
-        let buttonClasses:any[] = [classes.seasonButton];
-        if (selected) buttonClasses.push(classes.selectedButton);
         return (
-            <Button
-                sx={buttonClasses}
+            <AllButton
+                variant= {selected ? "contained" : 'outlined'}
                 onClick={() => props.onSelectSeason(season)}>
                 {label ?? season}
-            </Button >);
+            </AllButton >);
     }
     const buildSeasonButton = (season: number, label?: string) => {
         const selected = props.selectedSeason === season;
-        let buttonClasses:any[] = [classes.seasonButton, classes.roundButton];
-        if (selected) buttonClasses.push(classes.selectedButton);
-        return <Box key={`season-${season}`} sx={classes.buttonContainer}>
-            <ButtonBase
-                className={buttonClasses.join(" ")}
+        return <RoundButtonContainer key={`season-${season}`}>
+            <RoundButton
+                variant={selected ? 'contained' : 'outlined'}
                 onClick={() => props.onSelectSeason(season)}>
                 {label ?? season}
-            </ButtonBase>
-        </Box>;
+            </RoundButton>
+        </RoundButtonContainer>;
     }
     let {
         seasons,
     } = props;
     return (
-        <Box p={2} mb={1} sx={classes.boxBackground}>
-            <Box p={1} fontSize="16px">Season</Box>
+        <Box p={2} mb={1}
+        sx= {{
+            backgroundColor: colors.blueGrey[800],
+            borderRadius: 2,
+        }}>
+            <Box pb={1} fontSize="16px">Season</Box>
             {buildMainButton(-1, "All")}
             <Box p={1}></Box>
-            <Box sx={classes.seasonGrid}>
-                {seasons ? [...seasons].sort((a,b)=>a-b).map((type) => buildSeasonButton(type)) : null}
-            </Box>
+            <SeasonGrid>
+                {seasons ? [...seasons].sort((a, b) => a - b).map((type) => buildSeasonButton(type)) : null}
+            </SeasonGrid>
         </Box>
     );
 }

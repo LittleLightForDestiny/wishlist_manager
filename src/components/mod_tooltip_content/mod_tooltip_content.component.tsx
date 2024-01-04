@@ -45,7 +45,8 @@ export const ModTooltipContent = (props: {
         <Box display="flex" p={1}>
             <Box flexShrink={0}>
                 <img
-                    // sx={classes.icon} 
+                    width="48px"
+                    height="48px"
                     src={bungieURL(def.displayProperties.icon)} alt={def.displayProperties.name} />
             </Box>
             <Box flexShrink={1} textAlign="left">{def.displayProperties.description}</Box>

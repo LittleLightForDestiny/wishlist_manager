@@ -1,7 +1,8 @@
 import axios from "axios";
 import { DestinyCollectibleDefinition, DestinyInventoryItemDefinition } from "bungie-api-ts/destiny2/interfaces";
-import { getCollectibleDefinition, getCollectibles, getInventoryItemDefinition, getInventoryItemHashesByName, getInventoryItemList, getPresentationNodes } from "./manifest.service";
 import { uniqBy } from "lodash";
+import { manifest } from ".";
+import { getCollectibleDefinition, getCollectibles, getInventoryItemDefinition, getInventoryItemList, getPresentationNodes } from "./manifest.service";
 
 const collectionsWeaponsRootNode = 3790247699;
 const destinyWeaponType = 3;
@@ -29,7 +30,7 @@ export async function getFilterableWeapons(): Promise<ExtendedCollectible[]> {
     allCollectibles = getCollectibles();
     const collectionItems = getItemsFromCollections(collectionsWeaponsRootNode);
     const craftableItems = getItemsFromCraftables()
-    const itemVariations = getItemVariations([...collectionItems, ...craftableItems])
+    const itemVariations = getAllItems([...collectionItems, ...craftableItems])
     filterableWeapons = uniqBy([...collectionItems, ...craftableItems, ...itemVariations], (i)=>i.hash);
     return filterableWeapons;
 }
@@ -67,17 +68,13 @@ function getItemsFromCraftables() : ExtendedCollectible[] {
     return items
 }
 
-function getItemVariations(items:ExtendedCollectible[]): ExtendedCollectible[]{
-    const allVariations = items.reduce<ExtendedCollectible[]>((variations, item)=>{
-        const itemVariations = getInventoryItemHashesByName(item.displayProperties?.name).map((h)=>{
-            const variationItem = getInventoryItemDefinition(h)
-            return getExtendedItem(variationItem)
-        })
-        return [...variations, ...itemVariations];
-    }, []);
-    return allVariations.filter((item)=>{
+function getAllItems(items:ExtendedCollectible[]): ExtendedCollectible[]{
+    const allItems = Object.values(manifest.getInventoryItemList())
+    const extendedItems = allItems.map((i)=>getExtendedItem(i))
+
+    return extendedItems.filter((item)=>{
         if(!item?.equippable) return false
-        if(item.itemType === 20) return false
+        if(item.itemType !== 3) return false
         return true
     });
 

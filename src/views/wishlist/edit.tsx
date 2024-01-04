@@ -104,7 +104,7 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
             let w = await getWishlist(id);
             setWishlist(w);
             let c = await getFilterableWeapons()
-            let mappedCollectible = _keyBy(c, 'displayProperties.name')
+            let mappedCollectible = _keyBy(c, 'hash')
 
             setDefinitions(mappedCollectible)
             refreshItems();
@@ -153,7 +153,7 @@ export const EditWishlist = ({ match, history }: RouteChildrenProps) => {
         </AppBar>
         {useMemo(() => <Box flexGrow="1" >
             <AutoSizer style={{ width: "100%", height: "100%" }}>
-                {({ height, width }) => {
+                {({ height, width }:{height:number, width:number}) => {
                     let totalItems = items?.length || 0;
                     let columnCount = isMobile ? 1 : 3;
                     let rowCount = Math.ceil(totalItems / columnCount);
