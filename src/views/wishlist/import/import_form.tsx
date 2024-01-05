@@ -21,7 +21,7 @@ export const ImportWishlistForm = (props: {
     data?: WishlistData,
     onImport: OnWishlistImport
 }) => {
-    const [wishlistType, setWishlistType] = useState<WishlistType | null>(props.data?.type ?? WishlistType.LittleLight);
+    const wishlistType = WishlistType.LittleLight;
     const [mediaType, setMediaType] = useState<MediaType | null>(props.data?.media ?? null);
     const [wishlistURL, setWishlistURL] = useState<string>(typeof (props.data?.data) === "string" ? props.data?.data : "");
     const [wishlistFile, setWishlistFile] = useState<File>();

@@ -101,59 +101,56 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
     const goToMain = () => {
         history.push("/");
     }
-    const renderCurrentPhase = () => {
-        switch (phase) {
-            case Phase.importForm:
-                return <ImportWishlistForm
-                    data={formData} onImport={importFile}>
-                </ImportWishlistForm>;
-            case Phase.importing:
-                return <WishlistImporter onFinish={importFinish} data={formData}></WishlistImporter>
-            case Phase.metadataForm:
-                return <ImporterMetadataForm data={importedData} onSave={onSaveFinish}></ImporterMetadataForm>
-            case Phase.saving:
-                return <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={200} p={4}>
-                    <CircularProgress></CircularProgress>
-                    <Box pt={2}>Saving...</Box>
-                    <Box pt={2}>{`${progress}/${total}`}</Box>
-                </Box>;
-        }
-    }
+    const renderCurrentPhase = () => ({
+        [Phase.importForm]:
+            (<ImportWishlistForm data={formData} onImport={importFile} />),
+        [Phase.importing]:
+            (<WishlistImporter onFinish={importFinish} data={formData} />),
+        [Phase.metadataForm]:
+            (<ImporterMetadataForm data={importedData} onSave={onSaveFinish} />),
+        [Phase.saving]:
+            (<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={200} p={4}>
+                <CircularProgress></CircularProgress>
+                <Box pt={2}>Saving...</Box>
+                <Box pt={2}>{`${progress}/${total}`}</Box>
+            </Box>)
+    }[phase]);
 
-    useEffect(() => {
-        async function checkURL() {
-            const urlParams: any = location.search ? parse(location.search) : null;
-            const autoImport: boolean = !!urlParams && !!urlParams["type"] && !!urlParams["link"];
-            if (!autoImport) return;
-            let formData: WishlistFormData = { type: urlParams["type"], media: MediaType.Link, data: urlParams["link"] };
-            setFormData(formData);
-            await delay(100);
-            setPhase(Phase.importing);
-            let importedData = await loadAndImport(formData);
-            setImportedData(importedData);
-            await delay(100);
-            setPhase(Phase.saving);
-            let w = await saveToDatabase(importedData!);
-            history.push(`/wishlist/e/${w.id}`);
-        }
-        checkURL();
-    }, [history, location.search]);
-    return (
-        <Container maxWidth="sm">
-            <Box sx={classes.root}>
-                <AppBar position="static">
-                    <Toolbar>
-                        <IconButton edge="start" color="inherit" aria-label="menu" onClick={goToMain}>
-                            <FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon>
-                        </IconButton>
-                        <Typography>Import Wishlist</Typography>
-                    </Toolbar>
-                </AppBar>
-                <Paper>
-                    <Box p={2}>
-                        {renderCurrentPhase()}
-                    </Box>
-                </Paper>
-            </Box>
-        </Container >);
+
+useEffect(() => {
+    async function checkURL() {
+        const urlParams: any = location.search ? parse(location.search) : null;
+        const autoImport: boolean = !!urlParams && !!urlParams["type"] && !!urlParams["link"];
+        if (!autoImport) return;
+        let formData: WishlistFormData = { type: urlParams["type"], media: MediaType.Link, data: urlParams["link"] };
+        setFormData(formData);
+        await delay(100);
+        setPhase(Phase.importing);
+        let importedData = await loadAndImport(formData);
+        setImportedData(importedData);
+        await delay(100);
+        setPhase(Phase.saving);
+        let w = await saveToDatabase(importedData!);
+        history.push(`/wishlist/e/${w.id}`);
+    }
+    checkURL();
+}, [history, location.search]);
+return (
+    <Container maxWidth="sm">
+        <Box sx={classes.root}>
+            <AppBar position="static">
+                <Toolbar>
+                    <IconButton edge="start" color="inherit" aria-label="menu" onClick={goToMain}>
+                        <FontAwesomeIcon icon={faArrowLeft}></FontAwesomeIcon>
+                    </IconButton>
+                    <Typography>Import Wishlist</Typography>
+                </Toolbar>
+            </AppBar>
+            <Paper>
+                <Box p={2}>
+                    {(()=>renderCurrentPhase())}
+                </Box>
+            </Paper>
+        </Box>
+    </Container >);
 };
