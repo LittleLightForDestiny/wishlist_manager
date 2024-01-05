@@ -16,25 +16,25 @@ import { ImporterMetadataForm } from "./import/importer_metadata_form";
 
 
 const useStyles = {
-        noPadding: {
-            padding: 0,
-            margin: 0,
-        },
-        root: {
-            display: 'flex',
-            minHeight: '100vh',
-            flexDirection: "column",
-            justifyContent: "center",
-            padding: 0,
-        },
-        card: {
-            display: 'flex',
-            marginBottom: 1,
-        },
-        content: {
-            padding: 2,
-        }
+    noPadding: {
+        padding: 0,
+        margin: 0,
+    },
+    root: {
+        display: 'flex',
+        minHeight: '100vh',
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: 0,
+    },
+    card: {
+        display: 'flex',
+        marginBottom: 1,
+    },
+    content: {
+        padding: 2,
     }
+}
 
 enum Phase {
     importForm = "import-form",
@@ -57,7 +57,7 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
         builds: WishlistBuild[]
     }>();
 
-    const loadAndImport = async (data:WishlistFormData) => {
+    const loadAndImport = async (data: WishlistFormData) => {
         let fileData = await importWishlistFile(data.media!, data.data!);
         switch (data?.type) {
             case WishlistType.LittleLight:
@@ -78,7 +78,7 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
         setPhase(Phase.metadataForm);
     };
 
-    const saveToDatabase = async (importedData:any):Promise<Wishlist>=>{
+    const saveToDatabase = async (importedData: any): Promise<Wishlist> => {
         setTotal(importedData?.builds?.length || 0);
         let w = await createWishlist(importedData?.wishlist!);
         for (let i in importedData?.builds) {
@@ -101,13 +101,31 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
     const goToMain = () => {
         history.push("/");
     }
+    const renderCurrentPhase = () => {
+        switch (phase) {
+            case Phase.importForm:
+                return <ImportWishlistForm
+                    data={formData} onImport={importFile}>
+                </ImportWishlistForm>;
+            case Phase.importing:
+                return <WishlistImporter onFinish={importFinish} data={formData}></WishlistImporter>
+            case Phase.metadataForm:
+                return <ImporterMetadataForm data={importedData} onSave={onSaveFinish}></ImporterMetadataForm>
+            case Phase.saving:
+                return <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={200} p={4}>
+                    <CircularProgress></CircularProgress>
+                    <Box pt={2}>Saving...</Box>
+                    <Box pt={2}>{`${progress}/${total}`}</Box>
+                </Box>;
+        }
+    }
 
     useEffect(() => {
-        async function checkURL(){
+        async function checkURL() {
             const urlParams: any = location.search ? parse(location.search) : null;
             const autoImport: boolean = !!urlParams && !!urlParams["type"] && !!urlParams["link"];
-            if(!autoImport) return;
-            let formData:WishlistFormData = {type:urlParams["type"], media:MediaType.Link, data:urlParams["link"]};
+            if (!autoImport) return;
+            let formData: WishlistFormData = { type: urlParams["type"], media: MediaType.Link, data: urlParams["link"] };
             setFormData(formData);
             await delay(100);
             setPhase(Phase.importing);
@@ -120,7 +138,6 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
         }
         checkURL();
     }, [history, location.search]);
-    console.log(formData);
     return (
         <Container maxWidth="sm">
             <Box sx={classes.root}>
@@ -134,22 +151,7 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
                 </AppBar>
                 <Paper>
                     <Box p={2}>
-                        {() => {
-                            switch (phase) {
-                                case Phase.importForm:
-                                    return <ImportWishlistForm data={formData} onImport={importFile}></ImportWishlistForm>;
-                                case Phase.importing:
-                                    return <WishlistImporter onFinish={importFinish} data={formData}></WishlistImporter>
-                                case Phase.metadataForm:
-                                    return <ImporterMetadataForm data={importedData} onSave={onSaveFinish}></ImporterMetadataForm>
-                                case Phase.saving:
-                                    return <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height={200} p={4}>
-                                        <CircularProgress></CircularProgress>
-                                        <Box pt={2}>Saving...</Box>
-                                        <Box pt={2}>{`${progress}/${total}`}</Box>
-                                    </Box>
-                            }
-                        }}
+                        {renderCurrentPhase()}
                     </Box>
                 </Paper>
             </Box>

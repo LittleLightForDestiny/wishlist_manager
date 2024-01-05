@@ -21,7 +21,7 @@ export const ImportWishlistForm = (props: {
     data?: WishlistData,
     onImport: OnWishlistImport
 }) => {
-    const [wishlistType, setWishlistType] = useState<WishlistType | null>(props.data?.type ?? null);
+    const [wishlistType, setWishlistType] = useState<WishlistType | null>(props.data?.type ?? WishlistType.LittleLight);
     const [mediaType, setMediaType] = useState<MediaType | null>(props.data?.media ?? null);
     const [wishlistURL, setWishlistURL] = useState<string>(typeof (props.data?.data) === "string" ? props.data?.data : "");
     const [wishlistFile, setWishlistFile] = useState<File>();
@@ -91,18 +91,6 @@ export const ImportWishlistForm = (props: {
     return (
         <Box>
             <Box p={2}>
-                <Box m={1} mb={.5} mt={0}>
-                    <Typography>Wishlist Type</Typography>
-                </Box>
-                <Card variant="outlined">
-                    <RadioGroup aria-label="wishlist type" name="wishlist type"
-                        value={wishlistType}
-                        style={{ display: "flex", flexDirection: "row", padding: "8px 16px" }}
-                        onChange={(_, value) => setWishlistType(value as any)}>
-                        <FormControlLabel value={WishlistType.LittleLight} control={<Radio />} label="Little Light" />
-                        <FormControlLabel disabled value={WishlistType.DIM} control={<Radio />} label="DIM" />
-                    </RadioGroup>
-                </Card>
                 <Box m={1} mb={.5}>
                     <Typography>Media Type</Typography>
                 </Box>
