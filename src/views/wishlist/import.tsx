@@ -101,9 +101,10 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
     const goToMain = () => {
         history.push("/");
     }
-    const renderCurrentPhase = () => ({
+    const renderCurrentPhase = () =>
+    ({
         [Phase.importForm]:
-            (<ImportWishlistForm data={formData} onImport={importFile} />),
+            <ImportWishlistForm data={formData} onImport={importFile} />,
         [Phase.importing]:
             (<WishlistImporter onFinish={importFinish} data={formData} />),
         [Phase.metadataForm]:
@@ -114,7 +115,7 @@ export const ImportWishlist = ({ history, location }: RouteChildrenProps) => {
                 <Box pt={2}>Saving...</Box>
                 <Box pt={2}>{`${progress}/${total}`}</Box>
             </Box>)
-    }[phase]);
+    })[phase];
 
 
 useEffect(() => {
@@ -148,7 +149,7 @@ return (
             </AppBar>
             <Paper>
                 <Box p={2}>
-                    {(()=>renderCurrentPhase())}
+                    {renderCurrentPhase()}
                 </Box>
             </Paper>
         </Box>
